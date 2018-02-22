@@ -28,17 +28,16 @@ class KEITARO_Public {
 	 * @param      string    $version    The version of this plugin.
 	 */
 	public function __construct( $plugin_name, $version ) {
-
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
 
-	}
-
-	public function enqueue_styles() {
 	}
 
 	public function enqueue_scripts() {
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/keitaro-public.js', array( 'jquery' ), $this->version, false );
 	}
 
+	public function wp_head() {
+        add_action( 'wp_head', array($this->plugin_name, 'insert_tracker' ));;
+    }
 }

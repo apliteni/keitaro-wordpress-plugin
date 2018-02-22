@@ -1,83 +1,86 @@
 <?php
 
 class Keitaro_Admin {
-
-	/**
-	 * The ID of this plugin.
-	 *
-	 * @since    1.0.0
-	 * @access   private
-	 * @var      string    $plugin_name    The ID of this plugin.
-	 */
-	private $plugin_name;
-
-	/**
-	 * The version of this plugin.
-	 *
-	 * @since    1.0.0
-	 * @access   private
-	 * @var      string    $version    The current version of this plugin.
-	 */
+    private $plugin_name;
 	private $version;
+	private $hook_suffix;
 
-	/**
-	 * Initialize the class and set its properties.
-	 *
-	 * @since    1.0.0
-	 * @param      string    $plugin_name       The name of this plugin.
-	 * @param      string    $version    The version of this plugin.
-	 */
 	public function __construct( $plugin_name, $version ) {
-
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
-
 	}
 
-	/**
-	 * Register the stylesheets for the admin area.
-	 *
-	 * @since    1.0.0
-	 */
+    public function add_settings_page() {
+        add_options_page('Keitaro Options', 'Keitaro Options', 'manage_options', 'keitaro-admin', array($this, 'create_settings_page'));
+    }
+
 	public function enqueue_styles() {
-
-		/**
-		 * This function is provided for demonstration purposes only.
-		 *
-		 * An instance of this class should be passed to the run() function
-		 * defined in KEITARO_Loader as all of the hooks are defined
-		 * in that particular class.
-		 *
-		 * The KEITARO_Loader will then create the relationship
-		 * between the defined hooks and the functions defined in this
-		 * class.
-		 */
-
 		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/keitaro-admin.css', array(), $this->version, 'all' );
-
 	}
 
-	/**
-	 * Register the JavaScript for the admin area.
-	 *
-	 * @since    1.0.0
-	 */
 	public function enqueue_scripts() {
-
-		/**
-		 * This function is provided for demonstration purposes only.
-		 *
-		 * An instance of this class should be passed to the run() function
-		 * defined in KEITARO_Loader as all of the hooks are defined
-		 * in that particular class.
-		 *
-		 * The KEITARO_Loader will then create the relationship
-		 * between the defined hooks and the functions defined in this
-		 * class.
-		 */
-
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/keitaro-admin.js', array( 'jquery' ), $this->version, false );
-
 	}
 
+	public function admin_menu() {
+        $this->hook_suffix = add_menu_page(
+            $this->settings_page_name(),
+            'Keitaro',
+            'manage_options',
+            $this->plugin_name,
+            array($this, 'show_settings_page'),
+            'none'
+        );
+    }
+
+	public function show_settings_page() {
+        #$this->_prepare_settings();
+        //do_action( 'add_' . $this->plugin_name . '_section' );
+        echo '<div class="wrap">';
+        echo '<header><h1>' . esc_html( $this->settings_page_name() ) . '</h1></header>';
+        settings_errors( 'general' );
+        echo '<form method="post" action="' . esc_url( admin_url( 'options.php' ), array( 'https', 'http' ) ) . '">';
+        settings_fields( $this->hook_suffix );
+        do_settings_sections( $this->hook_suffix );
+        submit_button();
+        echo '</form>';
+        echo '</div>';
+    }
+
+    public function admin_init() {
+        register_setting('keitaro_settings_group', 'keitaro_settings');
+        $settings = (array) get_option('keitaro_settings');
+        $section = 'keitaro_settings';
+        
+        add_settings_section(
+            $section,
+            null,
+            null,
+            $this->hook_suffix
+        );
+
+        add_settings_field(
+            'token',
+            _('Campaign token', $this->plugin_name),
+            array($this, 'campaign_token'),
+            $this->hook_suffix,
+            $section, array(
+                'name' => 'keitaro_settings[token]',
+                'value' => $settings['token'],
+            )
+        );
+    }
+
+    public function settings_page_name() {
+        return __( 'Keitaro Settings', $this->plugin_name);
+    }
+
+    function campaign_token($args) {
+        $name = esc_attr($args['name']);
+        $value = esc_attr($args['value']);
+        echo "<input type='text' name='$name' size='40' value='$value' />";
+        echo '<p class="description">';
+        echo esc_html( __('Enter campaign token from the campaign settings', $this->plugin_name) );
+        echo '</p>';
+    }
 }
