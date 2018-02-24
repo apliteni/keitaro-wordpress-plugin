@@ -94,9 +94,36 @@ class KEITARO_Public {
         return $this->client->getOffer($options);
     }
 
-    public function send_postback($attr)
+    public function send_postback($attrs)
     {
-        print_r($attr);
-        die('works');
+        $postback_url = $this->get_option('postback_url');
+        $sub_id = $this->client->getSubId();
+        if (!$postback_url) {
+            echo 'No \'postback_url\' defined';
+            return;
+        }
+
+        if (empty($sub_id)) {
+            echo 'No \'sub_id\' defined';
+            return;
+        }
+
+        $url = $postback_url;
+        $attrs['sub_id'] = $this->client->getSubId();
+
+        $query = http_build_query($attrs);
+
+        if (strstr($url, '?')) {
+            $url .=  '&';
+        } else {
+            $url .=  '?';
+        }
+
+        $url .= $query;
+        $httpClient = new KHttpClient();
+        $response = $httpClient->request($url, array());
+        if ($response != 'Success') {
+            echo 'Error while sending postback: ' . $response;
+        }
     }
 }

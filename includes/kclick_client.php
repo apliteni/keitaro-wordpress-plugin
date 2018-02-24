@@ -561,7 +561,7 @@ class KHttpClient
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HEADER, 0);
-        curl_setopt($ch, CURLOPT_COOKIE, $opts['cookies']);
+        curl_setopt($ch, CURLOPT_COOKIE, isset($opts['cookies']) ? $opts['cookies'] : null);
         curl_setopt($ch, CURLOPT_NOBODY, 0);
         curl_setopt($ch, CURLOPT_TIMEOUT, 5);
         curl_setopt($ch, CURLOPT_USERAGENT, self::UA);
