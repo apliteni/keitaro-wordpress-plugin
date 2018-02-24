@@ -1,43 +1,102 @@
 <?php
 
 class KEITARO_Public {
+    private $version;
+    private $client;
+    public function __construct( $plugin_name, $version ) {
+        $this->plugin_name = $plugin_name;
+        $this->version = $version;
 
-	/**
-	 * The ID of this plugin.
-	 *
-	 * @since    1.0.0
-	 * @access   private
-	 * @var      string    $plugin_name    The ID of this plugin.
-	 */
-	private $plugin_name;
+        require_once plugin_dir_path( __FILE__  ). '../includes/kclick_client.php';
 
-	/**
-	 * The version of this plugin.
-	 *
-	 * @since    1.0.0
-	 * @access   private
-	 * @var      string    $version    The current version of this plugin.
-	 */
-	private $version;
+        $this->client = new KClickClient(
+            $this->get_option('tracker_url') . '/api.php?',
+            $this->get_option('token')
+        );
+    }
+    public function enqueue_scripts() {
+        //wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/keitaro-public.js', array( 'jquery' ), $this->version, false );
+    }
 
-	/**
-	 * Initialize the class and set its properties.
-	 *
-	 * @since    1.0.0
-	 * @param      string    $plugin_name       The name of the plugin.
-	 * @param      string    $version    The version of this plugin.
-	 */
-	public function __construct( $plugin_name, $version ) {
-		$this->plugin_name = $plugin_name;
-		$this->version = $version;
+    public function get_footer()
+    {
+        if ($this->get_option('enabled') && $this->get_option('debug') === 'yes') {
+            echo '<hr>';
+            echo 'Keitaro debug output:<br>';
+            echo implode('<br>', $this->client->getLog());
+            echo '<hr>';
+        }
+    }
 
-	}
+    private function get_option($key) {
+        $settings = (array) get_option( $this->plugin_name . '_settings' );
+        return isset($settings[$key]) ? $settings[$key] :null;
+    }
 
-	public function enqueue_scripts() {
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/keitaro-public.js', array( 'jquery' ), $this->version, false );
-	}
+    public function init_tracker() {
+        if (!$this->get_option('enabled')) {
+            return false;
+        }
 
-	public function wp_head() {
-        add_action( 'wp_head', array($this->plugin_name, 'insert_tracker' ));;
+        if ($this->get_option('debug') && isset($_GET['_reset'])) {
+            if (!headers_sent()) {
+                session_start();
+            }
+            unset($_SESSION[KClickClient::STATE_SESSION_KEY]);
+        }
+
+        if (!$this->get_option('tracker_url')) {
+            echo "<!-- No tracker URL defined -->";
+            return false;
+        }
+
+        if (!$this->get_option('token')) {
+            echo "<!-- No campaign token defined -->";
+            return false;
+        }
+
+
+        $this->client->sendAllParams();
+        $this->client->restoreState();
+        $this->client->param('default_keyword', get_the_title());
+
+        // $client->param('sub_id_5', '123'); // you can send any params
+        // $client->keyword('PASTE_KEYWORD');  // send custom keyword
+        // $client->currentPageAsReferrer(); // to send current page URL as click referrer
+        #echo wp_title('', false);
+        // $client->execute();             // request to api, show the output and continue
+        if (!$this->client->isStateRestored()) {
+            $this->client->executeAndBreak();
+        }
+    }
+
+    public function the_content($content)
+    {
+        if (preg_match_all('/(http[s]?:\/\/)?\{offer:?([0-9])?\}/si', $content, $result)) {
+            foreach ($result[0] as $num => $macro) {
+                if ($result[2][$num]) {
+                    $offer_id = $result[2][$num];
+                } else {
+                    $offer_id = null;
+                }
+                $content = str_replace($macro, $this->get_offer_url($offer_id), $content);
+            }
+        }
+        return $content;
+    }
+
+    public function get_offer_url($offer_id = null)
+    {
+        $options = array();
+        if (!empty($offer_id)) {
+            $options['offer_id'] = $offer_id;
+        }
+        return $this->client->getOffer($options);
+    }
+
+    public function send_postback($attr)
+    {
+        print_r($attr);
+        die('works');
     }
 }
