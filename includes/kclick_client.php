@@ -1,38 +1,38 @@
 <?php
 /**
 Usage:
-    require_once 'kclick_client.php';
-    $client = new KClickClient('http://tds.com/api.php', 'CAMPAIGN_TOKEN');
-    $client->sendUtmLabels(); # send only utm labels
-    $client->sendAllParams(); # send all params
-    $client
-        ->keyword('[KEYWORD]')
-        ->execute();          # use executeAndBreak() to break the page execution if there is redirect or some output
+require_once 'kclick_client.php';
+$client = new KClickClient('http://tds.com/api.php', 'CAMPAIGN_TOKEN');
+$client->sendUtmLabels(); # send only utm labels
+$client->sendAllParams(); # send all params
+$client
+->keyword('[KEYWORD]')
+->execute();          # use executeAndBreak() to break the page execution if there is redirect or some output
 
-*/
+ */
 class KClickClient
 {
-    private $_token;
-
     const UNIQUENESS_COOKIE = 'uniqueness_cookie';
+    const STATE_SESSION_KEY = 'keitaro_state';
     /**
      * @var KHttpClient
      */
     private $_httpClient;
     private $_debug = false;
-    private $_site;
+    private $_trackerUrl;
     private $_params = array();
     private $_log = array();
     private $_excludeParams = array('api_key', 'token', 'language', 'ua', 'ip', 'referrer', 'uniqueness_cookie');
     private $_result;
+    private $_stateRestored;
 
-    const VERSION = 2;
+    const VERSION = 3;
     const ERROR = '[KTrafficClient] Something is wrong. Enable debug mode to see the reason.';
 
-    public function __construct($site, $token)
+    public function __construct($trackerUrl, $token)
     {
-        $this->site($site);
-        $this->token($token);
+        $this->trackerUrl($trackerUrl);
+        $this->campaignToken($token);
         $this->version(self::VERSION);
         $this->fillParams();
     }
@@ -86,17 +86,22 @@ class KClickClient
         return $this;
     }
 
-    public function site($name)
+    public function trackerUrl($name)
     {
-        $this->_site = $name;
+        $this->_trackerUrl = $name;
     }
 
+    // @deprecated
     public function token($token)
     {
-        $this->_params['token'] = $token;
-        return $this;
+        return $this->campaignToken($token);
     }
 
+    public function campaignToken($campaignToken)
+    {
+        $this->_params['token'] = $campaignToken;
+        return $this;
+    }
     public function version($version)
     {
         $this->_params['version'] = $version;
@@ -136,6 +141,34 @@ class KClickClient
         }
     }
 
+    public function setLandingToken($token)
+    {
+        $this->_startSession();
+        $_SESSION['token'] = $token;
+    }
+
+    public function getSubId()
+    {
+        $result = $this->performRequest();
+        if (empty($result->info->sub_id)) {
+            $this->_log[] = 'No sub_id is defined';
+            return 'no_subid';
+        }
+        $subId = $result->info->sub_id;
+        return $subId;
+    }
+
+    public function getToken()
+    {
+        $result = $this->performRequest();
+        if (empty($result->info->sub_id)) {
+            $this->_log[] = 'No landing token is defined';
+            return 'no_token';
+        }
+        $subId = $result->info->token;
+        return $subId;
+    }
+
     public function sendAllParams()
     {
         foreach ($_GET as $name => $value) {
@@ -148,7 +181,33 @@ class KClickClient
     public function saveUniquenessCookie($value)
     {
         $this->_saveCookie($this->getCookieName(), $value);
-    }    
+    }
+
+    public function restoreState()
+    {
+        $this->_startSession();
+        if (!empty($_SESSION[self::STATE_SESSION_KEY])) {
+            $this->_result = json_decode($_SESSION[self::STATE_SESSION_KEY], false);
+            $this->_stateRestored = true;
+            $this->_log[] = 'State restored';
+        }
+
+        if (isset($_GET['_subid'])) {
+            if (empty($this->_result)) {
+                $this->_result = new StdClass();
+                $this->_result->info = new StdClass();
+            }
+            $this->_result->info->sub_id = $_GET['_subid'];
+            if (isset($_GET['_token'])) {
+                $this->_result->info->token = $_GET['_token'];
+            }
+        }
+    }
+
+    public function isStateRestored()
+    {
+        return $this->_stateRestored;
+    }
 
     private function _saveCookie($key, $value)
     {
@@ -207,6 +266,8 @@ class KClickClient
             }
         }
         $this->_result = json_decode($result);
+        $this->_storeState($this->_result);
+        $this->_saveKeitaroCookies(@$this->_result->uniqueness_cookie, @$this->_result->cookies);
         return $this->_result;
     }
 
@@ -215,7 +276,6 @@ class KClickClient
         $content = $this->getContent();
 
         if ($print) {
-            $this->updateCookies();
             $headers = $this->sendHeaders();
             echo $content;
         } else {
@@ -257,21 +317,22 @@ class KClickClient
             }
         }
 
-        if ($this->_debug) {
-            $content .= $this->showLog();
-        }
         return $content;
     }
 
     public function showLog($separator = '<br />')
     {
-        $this->performRequest();
-        return implode($separator, $this->_log);
+        echo '<hr>' . implode($separator, $this->getLog()). '<hr>';
+    }
+
+    public function getLog()
+    {
+        return $this->_log;
     }
 
     public function getCookieName()
     {
-        return hash('sha1', $this->_site);
+        return hash('sha1', $this->_trackerUrl);
     }
 
     public function executeAndBreak()
@@ -284,26 +345,32 @@ class KClickClient
         return $this->_params;
     }
 
-    public function updateCookies()
+    private function _storeState($result)
     {
-        $result = $this->performRequest();
+        $this->_startSession();
+        $_SESSION[self::STATE_SESSION_KEY] = json_encode($result);
 
-        if (!empty($result->info) && !empty($result->info->sub_id)) {
-            $startSession =  (!function_exists('session_status') || !session_status());
-            if ($startSession && !headers_sent()) {
-                @session_start();
+        // for back-compatibility purpose
+        if (!empty($result->info)) {
+            if (!empty($result->info->sub_id)) {
+                $_SESSION['sub_id'] = $result->info->sub_id;
             }
-            $_SESSION['sub_id'] = $result->info->sub_id;
-            $_SESSION['subid'] = $result->info->sub_id;
+            if (!empty($result->info->token)) {
+                $_SESSION['landing_token'] = $result->info->token;
+            }
+        }
+    }
+
+    private function _saveKeitaroCookies($uniquenessCookie, $cookies)
+    {
+        if (!empty($uniquenessCookie)) {
+            $this->saveUniquenessCookie($uniquenessCookie);
         }
 
-        if (!empty($result->uniqueness_cookie)) {
-            $this->saveUniquenessCookie($result->uniqueness_cookie);
-        }
-        if (!empty($result->cookies)) {
-            foreach ($result->cookies as $key => $value) {
+        if (!empty($cookies)) {
+            foreach ($cookies as $key => $value) {
                 $this->_saveCookie($key, $value);
-            } 
+            }
         }
     }
 
@@ -344,23 +411,13 @@ class KClickClient
     public function getOffer($params = array())
     {
         $result = $this->performRequest();
-        if (empty($result->info->token)) {
+        if (empty($this->getToken())) {
             $this->_log[] = 'Campaign hasn\'t returned offer';
             return 'no_offer';
         }
         $params['_lp'] = 1;
         $params['_token'] = $result->info->token;
         return $this->_buildOfferUrl($params);
-    }
-
-    public function getSubId()
-    {
-        $result = $this->performRequest();
-        if (empty($result->info->sub_id)) {
-            $this->_log[] = 'Campaign hasn\'t returned sub_id';
-            return 'no_subid';
-        }
-        return $result->info->sub_id;
     }
 
     public function isBot()
@@ -398,9 +455,16 @@ class KClickClient
         return $result->headers;
     }
 
+    private function _startSession()
+    {
+        if (!headers_sent()) {
+            @session_start();
+        }
+    }
+
     private function _buildOfferUrl($params = array())
     {
-        $request = parse_url($this->_site);
+        $request = parse_url($this->_trackerUrl);
         $lastChar = substr($request['path'], -1);
         if ($lastChar != '/' && $lastChar != '\\') {
             $path = str_replace(basename($request['path']), '', $request['path']);
@@ -426,7 +490,7 @@ class KClickClient
     private function _buildRequestUrl()
     {
         $this->param('info', true);
-        $request = parse_url($this->_site);
+        $request = parse_url($this->_trackerUrl);
         $params = http_build_query($this->getParams());
         return "{$request['scheme']}://{$request['host']}/{$request['path']}?{$params}";
     }
