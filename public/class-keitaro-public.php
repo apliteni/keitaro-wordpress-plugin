@@ -111,19 +111,32 @@ class KEITARO_Public {
         $url = $postback_url;
         $attrs['sub_id'] = $this->client->getSubId();
 
-        $query = http_build_query($attrs);
-
         if (strstr($url, '?')) {
             $url .=  '&';
         } else {
             $url .=  '?';
         }
 
-        $url .= $query;
+        foreach ($attrs as $key => $value) {
+            if (substr($value, '0', 1) === '$') {
+                $attrs[$key] = $this->find_variable(substr($value, '1'));
+            }
+        }
+
+        $url .= http_build_query($attrs);
         $httpClient = new KHttpClient();
         $response = $httpClient->request($url, array());
         if ($response != 'Success') {
             echo 'Error while sending postback: ' . $response;
+        }
+    }
+
+    private function find_variable($name)
+    {
+        foreach ([$_SESSION, $_POST, $_GET] as $source) {
+            if (isset($source[$name])) {
+                return $source[$name];
+            }
         }
     }
 }
