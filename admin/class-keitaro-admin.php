@@ -39,7 +39,7 @@ class Keitaro_Admin {
         echo '<div class="wrap">';
         echo '<header><h1>' . esc_html( $this->settings_page_name() ) . '</h1></header>';
         settings_errors( 'general' );
-        echo '<form method="post" action="options.php">';
+        echo '<form id="keitaro-settings-form" method="post" action="options.php">';
         settings_fields( $this->hook_suffix );
         do_settings_sections( $this->hook_suffix );
         submit_button();
@@ -63,6 +63,16 @@ class Keitaro_Admin {
             null,
             $this->hook_suffix
         );
+
+
+        add_settings_field(
+            'import',
+            '',
+            array($this, 'import_settings'),
+            $this->hook_suffix,
+            $section
+        );
+
         add_settings_field(
             'enabled',
             _('Enabled', $this->plugin_name),
@@ -117,14 +127,6 @@ class Keitaro_Admin {
             )
         );
 
-        $section = 'keitaro_advanced_section';
-        add_settings_section(
-            $section,
-            _('Advanced', $this->plugin_name),
-            null,
-            $this->hook_suffix
-        );
-
         add_settings_field(
             'debug',
             _('Debug enabled', $this->plugin_name),
@@ -138,6 +140,7 @@ class Keitaro_Admin {
 
             )
         );
+
 
     }
 
@@ -182,5 +185,21 @@ class Keitaro_Admin {
             echo esc_html($description);
             echo '</p>';
         }
+    }
+
+    public function import_settings()
+    {
+        echo '<div id="keitaro-import-success" style="display:none" class="updated settings-error notice">' .
+            _('Settings successfully imported', $this->plugin_name)
+            . '</div>';
+
+        echo '<a href="#" id="keitaro-import-settings" class="button">' .
+            _('Import settings', $this->plugin_name)
+        . '</a>';
+        echo '<textarea id="keitaro-import-box" style="display:none" rows="10"></textarea>';
+        echo '<p><a href="#" id="keitaro-import-button" class="button button-primary" style="display:none">' .
+            _('Import', $this->plugin_name)
+            . '</a></p>';
+
     }
 }

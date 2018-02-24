@@ -8,3 +8,9 @@ li.toplevel_page_keitaro .wp-menu-image:before {
     left: 8px;
     top: 0;
 }
+
+
+#keitaro-import-box {
+    width: 400px;
+    max-width: 100%;
+}
