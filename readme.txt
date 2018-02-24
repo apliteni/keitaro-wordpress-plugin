@@ -47,6 +47,9 @@ Use shortcode %[send_postback]% on "Thank you" page.
 Example:
 %[send_postback revenue="100" currency="usd"]%
 
+= How to send form data? =
+Example:
+%[send_postback firstname="$firstname" lastname="$lastname" phone="$phone"]%
 
 == Changelog ==
 
