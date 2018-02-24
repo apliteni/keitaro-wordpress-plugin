@@ -2,10 +2,11 @@
 /**
  * @wordpress-plugin
  * Plugin Name:       Keitaro Tracker Integration
+ * Plugin URI:        http://keitarotds.com
  * Description:       This plugin integrates WP with Keitaro tracker.
  * Version:           0.0.1
- * Author:            Keitaro
- * Author URI:        http://keitarotds.com/
+ * Author:            Artur Sabirov
+ * Author URI:        http://keitarotds.com
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:       keitaro

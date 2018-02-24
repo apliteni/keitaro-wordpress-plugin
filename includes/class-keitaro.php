@@ -38,6 +38,7 @@ class Plugin_Name {
         $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
         $this->loader->add_action( 'admin_menu', $plugin_admin, 'admin_menu' );
         $this->loader->add_action( 'admin_init', $plugin_admin, 'admin_init' );
+        $this->loader->add_filter( 'plugin_row_meta', $plugin_admin, 'plugin_links', 10, 4 );
     }
 
     private function define_public_hooks() {

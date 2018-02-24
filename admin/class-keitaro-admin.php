@@ -202,4 +202,16 @@ class Keitaro_Admin {
             . '</a></p>';
 
     }
+
+    public function plugin_links( $links, $plugin_file, $plugin_data ) {
+        if ( isset( $plugin_data['PluginURI'] ) && false !== strpos( $plugin_data['PluginURI'], 'keitarotds.com' ) ) {
+            $slug = basename( $plugin_data['PluginURI'] );
+            $links[] = sprintf( '<a href="%s" class="thickbox" title="%s">%s</a>',
+                self_admin_url( 'plugin-install.php?tab=plugin-information&amp;plugin=' . $slug . '&amp;TB_iframe=true&amp;width=600&amp;height=550' ),
+                esc_attr( sprintf( __( 'More information about %s' ), $plugin_data['Name'] ) ),
+                __( 'View details' )
+            );
+        }
+        return $links;
+    }
 }
