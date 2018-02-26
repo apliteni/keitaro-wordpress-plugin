@@ -15,41 +15,55 @@ Features:
   - Cloaking
   - Sending postbacks
 
+== Terms of Service ==
+<a href="https://keitarotds.com/tos">https://keitarotds.com/tos</a>
+
 == Installation ==
 
 1. Upload the `keitaro` folder to the `/wp-content/plugins` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
 
+== Need help? ==
+Send us a message on support@keitarotds.com
+
 == Frequently Asked Questions ==
 
 = What is Keitaro? =
 Keitaro is a self-hosted tracker for affiliate marketers.
+More information about Keitaro on page <a href="https://keitarotds.com?utm_source=wordpress-plugins">https://keitarotds.com</a>.
+
+= Which Keitaro version is needed? =
+Keitaro v9.1 or higher.
 
 = How to generate offer link? =
-Use links with href value %{offer}%.
+Use links with href value `{offer}`.
 
 Full example:
-<a href="{offer}">Buy it now!</a>
+`&lt;a href="{offer}">Buy it now!</a>`
 
 = How to specify offer in the links? =
-Use macro %{offer:ID}%. Examples:
-%{offer:4}%
-%{offer:9}%,
+Use macro `{offer:ID}`. Examples:
+`&lt;a href="{offer:4}">Offer 1</a>`
+`&lt;a href="{offer:9}">Offer 2</a>"`
 
 Full example:
-%<a href="{offer}">Buy it now!</a>%
+`&lt;a href="{offer}">Buy it now!</a>`
 
 
 = How to track conversions (send postback)? =
-Use shortcode %[send_postback]% on "Thank you" page.
+Use shortcode `[send_postback]` on "Thank you" page.
 
 = How to specify conversion revenue? =
 Example:
-%[send_postback revenue="100" currency="usd"]%
+`[send_postback revenue="100" currency="usd"]`
 
 = How to send form data? =
 Example:
-%[send_postback firstname="$firstname" lastname="$lastname" phone="$phone"]%
+`[send_postback firstname="$firstname" lastname="$lastname" phone="$phone"]`
+
+= How to reset saved state? =
+Add parameter `?_reset=1` to page URL.
+
 
 == Changelog ==
 
@@ -60,8 +74,5 @@ Early alpha version. Implemented:
   * generates offer links, includes multi-offer support
 
 == Screenshots ==
-Settings page
+1. Settings page
 
-
-== Terms of Service ==
-[https://keitarotds.com/tos]
