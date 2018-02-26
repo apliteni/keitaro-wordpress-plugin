@@ -55,21 +55,17 @@ class KEITARO_Public {
             return false;
         }
 
-
         $this->client->sendAllParams();
-        $this->client->restoreState();
         if ($this->get_option('use_title_as_keyword') === 'yes') {
             $this->client->param('default_keyword', get_the_title());
         }
+        $this->client->restoreFromQuery();
 
-        // $client->param('sub_id_5', '123'); // you can send any params
-        // $client->keyword('PASTE_KEYWORD');  // send custom keyword
-        // $client->currentPageAsReferrer(); // to send current page URL as click referrer
-        #echo wp_title('', false);
-        // $client->execute();             // request to api, show the output and continue
-        if (!$this->client->isStateRestored()) {
-            $this->client->executeAndBreak();
+        if ($this->get_option('track_hits')) {
+            $this->client->restoreFromSession();
         }
+
+        $this->client->executeAndBreak();
     }
 
     public function the_content($content)

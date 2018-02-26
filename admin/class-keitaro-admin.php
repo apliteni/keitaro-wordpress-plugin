@@ -141,6 +141,20 @@ class Keitaro_Admin {
         );
 
         add_settings_field(
+            'track_hits',
+            _('Track non-unique visits', $this->plugin_name),
+            array($this, 'radio_buttons'),
+            $this->hook_suffix,
+            $section, array(
+                'name' => 'keitaro_settings[track_hits]',
+                'value' => isset($settings['track_hits']) ? $settings['track_hits'] : 'yes',
+                'options' => $yesNoOptions,
+                'description' => _('If you want to track only unique visits, set \'yes\'. 
+                    In order to send every visits as clicks to Keitaro, choose \'no\'. This option respects cookies ttl that is set in Keitaro campaign.', $this->plugin_name),
+            )
+        );
+
+        add_settings_field(
             'debug',
             _('Debug enabled', $this->plugin_name),
             array($this, 'radio_buttons'),

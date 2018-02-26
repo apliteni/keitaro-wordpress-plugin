@@ -14,6 +14,7 @@ class KClickClient
 {
     const UNIQUENESS_COOKIE = 'uniqueness_cookie';
     const STATE_SESSION_KEY = 'keitaro_state';
+    const STATE_SESSION_EXPIRES_KEY = 'keitaro_state_expires';
     /**
      * @var KHttpClient
      */
@@ -34,6 +35,7 @@ class KClickClient
         $this->trackerUrl($trackerUrl);
         $this->campaignToken($token);
         $this->version(self::VERSION);
+        $this->param('info', 1);
         $this->fillParams();
     }
 
@@ -178,29 +180,45 @@ class KClickClient
         }
     }
 
-    public function saveUniquenessCookie($value)
+    public function saveUniquenessCookie($value, $ttl)
     {
-        $this->_saveCookie($this->getCookieName(), $value);
+        $this->_saveCookie($this->getUniquenessCookieName(), $value, $ttl);
     }
 
-    public function restoreState()
+    public function restoreFromSession()
     {
+        if ($this->isStateRestored()) {
+            return;
+        }
         $this->_startSession();
         if (!empty($_SESSION[self::STATE_SESSION_KEY])) {
-            $this->_result = json_decode($_SESSION[self::STATE_SESSION_KEY], false);
-            $this->_stateRestored = true;
-            $this->_log[] = 'State restored';
+            if ($_SESSION[self::STATE_SESSION_EXPIRES_KEY] < time()) {
+                unset($_SESSION[self::STATE_SESSION_KEY]);
+                unset($_SESSION[self::STATE_SESSION_EXPIRES_KEY]);
+                $this->_log[] = 'State expired';
+            } else {
+                $this->_result = json_decode($_SESSION[self::STATE_SESSION_KEY], false);
+                $this->_stateRestored = true;
+                $this->_log[] = 'State restored';
+            }
         }
+    }
 
+    public function restoreFromQuery()
+    {
         if (isset($_GET['_subid'])) {
+            $this->_stateRestored = true;
             if (empty($this->_result)) {
                 $this->_result = new StdClass();
                 $this->_result->info = new StdClass();
             }
             $this->_result->info->sub_id = $_GET['_subid'];
+            $this->_log[] = 'SubId loaded from query';
             if (isset($_GET['_token'])) {
                 $this->_result->info->token = $_GET['_token'];
+                $this->_log[] = 'Landing token loaded from query';
             }
+            $this->_stateRestored = true;
         }
     }
 
@@ -209,13 +227,13 @@ class KClickClient
         return $this->_stateRestored;
     }
 
-    private function _saveCookie($key, $value)
+    private function _saveCookie($key, $value, $ttl)
     {
         if (isset($_COOKIE[$key]) && $_COOKIE[$key] == $value) {
             return;
         }
         if (!headers_sent()) {
-            setcookie($key, $value, $this->_getCookiesExpireTimestamp(), '/', $this->_getCookieHost());
+            setcookie($key, $value, $this->_getCookiesExpireTimestamp($ttl), '/', $this->_getCookieHost());
         }
         $_COOKIE[$key] = $value;
     }
@@ -266,8 +284,15 @@ class KClickClient
             }
         }
         $this->_result = json_decode($result);
-        $this->_storeState($this->_result);
-        $this->_saveKeitaroCookies(@$this->_result->uniqueness_cookie, @$this->_result->cookies);
+        $this->_storeState(
+            $this->_result,
+            isset($this->_result->cookies_ttl) ? $this->_result->cookies_ttl : null
+        );
+        $this->_saveKeitaroCookies(
+            isset($this->_result->uniqueness_cookie) ? $this->_result->uniqueness_cookie : null,
+            isset($this->_result->cookies) ? $this->_result->cookies : null,
+            isset($this->_result->cookies_ttl) ? $this->_result->cookies_ttl : null
+        );
         return $this->_result;
     }
 
@@ -330,7 +355,7 @@ class KClickClient
         return $this->_log;
     }
 
-    public function getCookieName()
+    public function getUniquenessCookieName()
     {
         return hash('sha1', $this->_trackerUrl);
     }
@@ -345,10 +370,11 @@ class KClickClient
         return $this->_params;
     }
 
-    private function _storeState($result)
+    private function _storeState($result, $ttl)
     {
         $this->_startSession();
         $_SESSION[self::STATE_SESSION_KEY] = json_encode($result);
+        $_SESSION[self::STATE_SESSION_EXPIRES_KEY] = time() + ($ttl * 60 * 60);
 
         // for back-compatibility purpose
         if (!empty($result->info)) {
@@ -361,15 +387,15 @@ class KClickClient
         }
     }
 
-    private function _saveKeitaroCookies($uniquenessCookie, $cookies)
+    private function _saveKeitaroCookies($uniquenessCookie, $cookies, $ttl)
     {
         if (!empty($uniquenessCookie)) {
-            $this->saveUniquenessCookie($uniquenessCookie);
+            $this->saveUniquenessCookie($uniquenessCookie, $ttl);
         }
 
         if (!empty($cookies)) {
             foreach ($cookies as $key => $value) {
-                $this->_saveCookie($key, $value);
+                $this->_saveCookie($key, $value, $ttl);
             }
         }
     }
@@ -422,7 +448,6 @@ class KClickClient
 
     public function isBot()
     {
-        $this->param('info', true);
         $result = $this->performRequest();
         if (isset($result->info)) {
             return isset($result->info->is_bot) ? $result->info->is_bot : false;
@@ -431,7 +456,6 @@ class KClickClient
 
     public function isUnique($level = 'campaign')
     {
-        $this->param('info', true);
         $result = $this->performRequest();
         if (isset($result->info) && $result->info->uniqueness) {
             return isset($result->info->uniqueness->$level) ? $result->info->uniqueness->$level : false;
@@ -489,7 +513,6 @@ class KClickClient
 
     private function _buildRequestUrl()
     {
-        $this->param('info', true);
         $request = parse_url($this->_trackerUrl);
         $params = http_build_query($this->getParams());
         return "{$request['scheme']}://{$request['host']}/{$request['path']}?{$params}";
@@ -525,12 +548,12 @@ class KClickClient
 
     private function _getUniquenessCookie()
     {
-        return !empty($_COOKIE[$this->getCookieName()]) ? $_COOKIE[$this->getCookieName()] : '';
+        return !empty($_COOKIE[$this->getUniquenessCookieName()]) ? $_COOKIE[$this->getUniquenessCookieName()] : '';
     }
 
-    private function _getCookiesExpireTimestamp()
+    private function _getCookiesExpireTimestamp($ttl)
     {
-        return time() + 60 * 60 * 24 * 31;
+        return time() + 60 * 60 * $ttl;
     }
 
     private function _getCookieHost()
