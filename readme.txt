@@ -39,15 +39,18 @@ Keitaro v9.1 or higher.
 Use links with href value `{offer}`.
 
 Full example:
-`&lt;a href="{offer}">Buy it now!</a>`
+
+	<a href="{offer}">Buy it now!</a>
 
 = How to specify offer in the links? =
 Use macro `{offer:ID}`. Examples:
-`&lt;a href="{offer:4}">Offer 1</a>`
-`&lt;a href="{offer:9}">Offer 2</a>"`
+
+	<a href="{offer:4}">Offer 1</a>
+	<a href="{offer:9}">Offer 2</a>
 
 Full example:
-`&lt;a href="{offer}">Buy it now!</a>`
+
+	<a href="{offer}">Buy it now!</a>
 
 
 = How to track conversions (send postback)? =
@@ -55,11 +58,13 @@ Use shortcode `[send_postback]` on "Thank you" page.
 
 = How to specify conversion revenue? =
 Example:
-`[send_postback revenue="100" currency="usd"]`
+
+	[send_postback revenue="100" currency="usd"]
 
 = How to send form data? =
 Example:
-`[send_postback firstname="$firstname" lastname="$lastname" phone="$phone"]`
+
+	[send_postback firstname="$firstname" lastname="$lastname" phone="$phone"]
 
 = How to reset saved state? =
 Add parameter `?_reset=1` to page URL.
