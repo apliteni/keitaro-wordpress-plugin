@@ -58,7 +58,9 @@ class KEITARO_Public {
 
         $this->client->sendAllParams();
         $this->client->restoreState();
-        $this->client->param('default_keyword', get_the_title());
+        if ($this->get_option('use_title_as_keyword') === 'yes') {
+            $this->client->param('default_keyword', get_the_title());
+        }
 
         // $client->param('sub_id_5', '123'); // you can send any params
         // $client->keyword('PASTE_KEYWORD');  // send custom keyword

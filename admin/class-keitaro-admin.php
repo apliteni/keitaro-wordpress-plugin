@@ -128,6 +128,19 @@ class Keitaro_Admin {
         );
 
         add_settings_field(
+            'use_title_as_keyword',
+            _('Use post title as keyword', $this->plugin_name),
+            array($this, 'radio_buttons'),
+            $this->hook_suffix,
+            $section, array(
+                'name' => 'keitaro_settings[use_title_as_keyword]',
+                'value' => isset($settings['use_title_as_keyword']) ? $settings['use_title_as_keyword'] : 'no',
+                'options' => $yesNoOptions,
+                'description' => _('Choose \'yes\' in order to use post title as keyword', $this->plugin_name),
+            )
+        );
+
+        add_settings_field(
             'debug',
             _('Debug enabled', $this->plugin_name),
             array($this, 'radio_buttons'),
