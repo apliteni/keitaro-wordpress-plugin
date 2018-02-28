@@ -22,6 +22,10 @@ Features:
 
 1. Upload the `keitaro` folder to the `/wp-content/plugins` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
+3. Open the campaign, switch tab to "Integration", find there "WordPress".
+4. Copy settings block, paste
+5. Open section "Keitaro" in the WordPress.
+6. Import copied settings. Press "Save Changes".
 
 == Need help? ==
 Send us a message on support@keitarotds.com

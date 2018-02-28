@@ -7,8 +7,6 @@ class Plugin_Name {
     public function __construct() {
         if ( defined( 'KEITARO_VERSION' ) ) {
             $this->version = KEITARO_VERSION;
-        } else {
-            $this->version = '0.0.1';
         }
         $this->plugin_name = 'keitaro';
 
