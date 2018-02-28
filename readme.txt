@@ -28,7 +28,7 @@ Features:
 6. Import copied settings. Press "Save Changes".
 
 == Need help? ==
-Send us a message on support@keitarotds.com
+Send us a message on support@keitarotds.com or read <a href="https://help.keitarotds.com/wp-plugin">the knowledge base</a>.
 
 == Frequently Asked Questions ==
 
@@ -75,6 +75,9 @@ Add parameter `?_reset=1` to page URL.
 
 
 == Changelog ==
+
+= 0.0.2 =
+Better internalization
 
 = 0.0.1 =
 Early alpha version. Implemented:
