@@ -22,13 +22,9 @@ Features:
 
 1. Upload the `keitaro` folder to the `/wp-content/plugins` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
-3. Open the campaign, switch tab to "Integration", find there "WordPress".
-4. Copy settings block, paste
-5. Open section "Keitaro" in the WordPress.
-6. Import copied settings. Press "Save Changes".
 
 == Need help? ==
-Send us a message on support@keitarotds.com or read <a href="https://help.keitarotds.com/wp-plugin">the knowledge base</a>.
+Send us a message on support@keitarotds.com
 
 == Frequently Asked Questions ==
 
@@ -44,17 +40,17 @@ Use links with href value `{offer}`.
 
 Full example:
 
-	<a href="{offer}">Buy it now!</a>
+    &lt;a href="{offer}">Buy it now!</a>
 
 = How to specify offer in the links? =
 Use macro `{offer:ID}`. Examples:
 
-	<a href="{offer:4}">Offer 1</a>
-	<a href="{offer:9}">Offer 2</a>
+    &lt;a href="{offer:4}">Offer 1</a>
+    &lt;a href="{offer:9}">Offer 2</a>"
 
 Full example:
 
-	<a href="{offer}">Buy it now!</a>
+    &lt;a href="{offer}">Buy it now!</a>
 
 
 = How to track conversions (send postback)? =
@@ -63,21 +59,18 @@ Use shortcode `[send_postback]` on "Thank you" page.
 = How to specify conversion revenue? =
 Example:
 
-	[send_postback revenue="100" currency="usd"]
+    [send_postback revenue="100" currency="usd"]
 
 = How to send form data? =
 Example:
 
-	[send_postback firstname="$firstname" lastname="$lastname" phone="$phone"]
+    [send_postback firstname="$firstname" lastname="$lastname" phone="$phone"]
 
 = How to reset saved state? =
 Add parameter `?_reset=1` to page URL.
 
 
 == Changelog ==
-
-= 0.0.2 =
-Better internalization
 
 = 0.0.1 =
 Early alpha version. Implemented:
