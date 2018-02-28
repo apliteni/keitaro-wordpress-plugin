@@ -53,13 +53,13 @@ class Keitaro_Admin {
         $settings = (array) get_option('keitaro_settings');
         $section = 'keitaro_main_section';
         $yesNoOptions = [
-            ['name' => _('Yes', $this->plugin_name), 'value' => 'yes'],
-            ['name' => _('No', $this->plugin_name), 'value' => 'no'],
+            ['name' => __('Yes', $this->plugin_name), 'value' => 'yes'],
+            ['name' => __('No', $this->plugin_name), 'value' => 'no'],
         ];
 
         add_settings_section(
             $section,
-            _('Main', $this->plugin_name),
+            __('Main', $this->plugin_name),
             null,
             $this->hook_suffix
         );
@@ -75,20 +75,20 @@ class Keitaro_Admin {
 
         add_settings_field(
             'enabled',
-            _('Enabled', $this->plugin_name),
+            __('Enabled', $this->plugin_name),
             array($this, 'radio_buttons'),
             $this->hook_suffix,
             $section, array(
                 'name' => 'keitaro_settings[enabled]',
                 'value' => isset($settings['enabled']) ? $settings['enabled'] : 'no',
                 'options' => $yesNoOptions,
-                'description' => _('Choose "no" to disable Keitaro', $this->plugin_name),
+                'description' => __('Choose "no" to disable Keitaro', $this->plugin_name),
             )
         );
 
         add_settings_field(
             'tracker_url',
-            _('Tracker URL', $this->plugin_name),
+            __('Tracker URL', $this->plugin_name),
             array($this, 'text_input'),
             $this->hook_suffix,
             $section, array(
@@ -96,13 +96,13 @@ class Keitaro_Admin {
                 'value' => $settings['tracker_url'],
                 'size' => 100,
                 'placeholder' => 'http://your-tracker.com/',
-                'description' => _('Where Keitaro installed', $this->plugin_name),
+                'description' => __('Where Keitaro installed', $this->plugin_name),
             )
         );
 
         add_settings_field(
             'postback_url',
-            _('Postback URL', $this->plugin_name),
+            __('Postback URL', $this->plugin_name),
             array($this, 'text_input'),
             $this->hook_suffix,
             $section, array(
@@ -110,13 +110,13 @@ class Keitaro_Admin {
                 'value' => $settings['postback_url'],
                 'size' => 100,
                 'placeholder' => 'http://your-tracker.com/123/postback',
-                'description' => _('Where to send postbacks', $this->plugin_name),
+                'description' => __('Where to send postbacks', $this->plugin_name),
             )
         );
 
         add_settings_field(
             'token',
-            _('Campaign token', $this->plugin_name),
+            __('Campaign token', $this->plugin_name),
             array($this, 'text_input'),
             $this->hook_suffix,
             $section, array(
@@ -129,41 +129,41 @@ class Keitaro_Admin {
 
         add_settings_field(
             'use_title_as_keyword',
-            _('Use post title as keyword', $this->plugin_name),
+            __('Use post title as keyword', $this->plugin_name),
             array($this, 'radio_buttons'),
             $this->hook_suffix,
             $section, array(
                 'name' => 'keitaro_settings[use_title_as_keyword]',
                 'value' => isset($settings['use_title_as_keyword']) ? $settings['use_title_as_keyword'] : 'no',
                 'options' => $yesNoOptions,
-                'description' => _('Choose \'yes\' in order to use post title as keyword', $this->plugin_name),
+                'description' => __('Choose \'yes\' in order to use post title as keyword', $this->plugin_name),
             )
         );
 
         add_settings_field(
             'track_hits',
-            _('Track non-unique visits', $this->plugin_name),
+            __('Track non-unique visits', $this->plugin_name),
             array($this, 'radio_buttons'),
             $this->hook_suffix,
             $section, array(
                 'name' => 'keitaro_settings[track_hits]',
                 'value' => isset($settings['track_hits']) ? $settings['track_hits'] : 'yes',
                 'options' => $yesNoOptions,
-                'description' => _('If you want to track only unique visits, set \'yes\'. 
+                'description' => __('If you want to track only unique visits, set \'yes\'. 
                     In order to send every visits as clicks to Keitaro, choose \'no\'. This option respects cookies ttl that is set in Keitaro campaign.', $this->plugin_name),
             )
         );
 
         add_settings_field(
             'debug',
-            _('Debug enabled', $this->plugin_name),
+            __('Debug enabled', $this->plugin_name),
             array($this, 'radio_buttons'),
             $this->hook_suffix,
             $section, array(
                 'name' => 'keitaro_settings[debug]',
                 'value' => isset($settings['debug']) ? $settings['debug'] : 'no',
                 'options' => $yesNoOptions,
-                'description' => _('You\'ll see request and response to Click API on all pages', $this->plugin_name),
+                'description' => __('You\'ll see request and response to Click API on all pages', $this->plugin_name),
 
             )
         );
@@ -217,15 +217,15 @@ class Keitaro_Admin {
     public function import_settings()
     {
         echo '<div id="keitaro-import-success" style="display:none" class="updated settings-error notice">' .
-            _('Settings successfully imported', $this->plugin_name)
+            __('Settings successfully imported', $this->plugin_name)
             . '</div>';
 
         echo '<a href="#" id="keitaro-import-settings" class="button">' .
-            _('Import settings', $this->plugin_name)
+            __('Import settings', $this->plugin_name)
         . '</a>';
         echo '<textarea id="keitaro-import-box" style="display:none" rows="10"></textarea>';
         echo '<p><a href="#" id="keitaro-import-button" class="button button-primary" style="display:none">' .
-            _('Import', $this->plugin_name)
+            __('Import', $this->plugin_name)
             . '</a></p>';
 
     }
