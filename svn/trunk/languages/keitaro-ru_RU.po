@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: 2018-02-28 14:54+0100\n"
-"PO-Revision-Date: 2018-03-01 14:49+0100\n"
+"PO-Revision-Date: 2018-03-01 15:02+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: ru\n"
@@ -112,7 +112,7 @@ msgstr "Настройки Keitaro"
 #: admin/class-keitaro-admin.php:220
 #: svn/trunk/admin/class-keitaro-admin.php:220
 msgid "Settings successfully imported"
-msgstr "Настройки успешно импортированы"
+msgstr "Настройки успешно импортированы. Не забудьте сохранить их"
 
 #: admin/class-keitaro-admin.php:224
 #: svn/trunk/admin/class-keitaro-admin.php:224
