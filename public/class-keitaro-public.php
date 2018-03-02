@@ -34,6 +34,10 @@ class KEITARO_Public {
     }
 
     public function init_tracker() {
+        if ( is_admin() ) {
+            return false;
+        }
+
         if (!$this->get_option('enabled')) {
             return false;
         }
