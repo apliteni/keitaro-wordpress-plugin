@@ -42,6 +42,8 @@ class KEITARO_Public {
             return false;
         }
 
+        $this->start_catching_output();
+
         if ($this->get_option('debug') === 'yes' && isset($_GET['_reset'])) {
             if (!headers_sent()) {
                 session_start();
@@ -72,9 +74,21 @@ class KEITARO_Public {
         $this->client->executeAndBreak();
     }
 
-    public function the_content($content)
+    public function final_output($content)
     {
-        if (preg_match_all('/(http[s]?:\/\/)?\{offer:?([0-9])?\}/si', $content, $result)) {
+        $patterns = array(
+            '/(http[s]?:\/\/)?\{offer:?([0-9])?\}/si',
+            '/(http[s]?:\/\/)?offer:?([0-9])?/si',
+        );
+        foreach ($patterns as $pattern) {
+            $content = $this->replace_with_pattern($pattern, $content);
+        }
+        return $content;
+    }
+
+    private function replace_with_pattern($pattern, $content)
+    {
+        if (preg_match_all($pattern, $content, $result)) {
             foreach ($result[0] as $num => $macro) {
                 if ($result[2][$num]) {
                     $offer_id = $result[2][$num];
@@ -100,8 +114,24 @@ class KEITARO_Public {
         return $this->client->getOffer($options);
     }
 
+    private function start_catching_output()
+    {
+        ob_start();
+        add_action('shutdown', function() {
+            $final = '';
+            $levels = ob_get_level();
+            for ($i = 0; $i < $levels; $i++) {
+                $final .= ob_get_clean();
+            }
+            echo apply_filters('final_output', $final);
+        }, 0);
+    }
+
     public function send_postback($attrs)
     {
+        if (empty($attrs)) {
+            $attrs = array();
+        }
         if ($this->get_option('enabled') !== 'yes') {
             return 'Keitaro integration disabled';
         }
@@ -117,8 +147,10 @@ class KEITARO_Public {
             return;
         }
 
+        $attrs = array_merge($attrs, $this->add_wpforms_fields());
+
         $url = $postback_url;
-        $attrs['sub_id'] = $this->client->getSubId();
+        $attrs['subid'] = $this->client->getSubId();
 
         if (strstr($url, '?')) {
             $url .=  '&';
@@ -146,6 +178,21 @@ class KEITARO_Public {
             if (isset($source[$name])) {
                 return $source[$name];
             }
+        }
+    }
+
+    private function add_wpforms_fields()
+    {
+        $fields = array();
+        if (isset($_POST['wpforms']) && isset($_POST['wpforms']['fields'])) {
+            foreach($_POST['wpforms']['complete'] as $field) {
+                $fields[] = $field['name'] .': '. $field['value'];
+            }
+        }
+        if (!empty($fields)) {
+            return array('form' => join(', ', $fields));
+        } else {
+            return array();
         }
     }
 }

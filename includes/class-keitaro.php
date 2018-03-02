@@ -1,6 +1,6 @@
 <?php
 
-class Plugin_Name {
+class Plugin_Keitaro {
     protected $loader;
     protected $plugin_name;
     protected $version;
@@ -14,7 +14,6 @@ class Plugin_Name {
         $this->set_locale();
         $this->define_admin_hooks();
         $this->define_public_hooks();
-
     }
 
     private function load_dependencies() {
@@ -44,7 +43,7 @@ class Plugin_Name {
         $this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
         $this->loader->add_action( 'wp', $plugin_public, 'init_tracker' );
         $this->loader->add_action( 'get_footer', $plugin_public, 'get_footer' );
-        $this->loader->add_filter( 'the_content', $plugin_public, 'the_content' );
+        $this->loader->add_filter( 'final_output', $plugin_public, 'final_output');
         $this->loader->add_shortcode( 'send_postback', $plugin_public, 'send_postback' );
 
     }
