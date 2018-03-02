@@ -20,7 +20,7 @@ class KEITARO_Public {
 
     public function get_footer()
     {
-        if ($this->get_option('enabled') && $this->get_option('debug') === 'yes') {
+        if ($this->get_option('enabled') === 'yes' && $this->get_option('debug') === 'yes') {
             echo '<hr>';
             echo 'Keitaro debug output:<br>';
             echo implode('<br>', $this->client->getLog());
@@ -38,11 +38,11 @@ class KEITARO_Public {
             return false;
         }
 
-        if (!$this->get_option('enabled')) {
+        if ($this->get_option('enabled') !== 'yes') {
             return false;
         }
 
-        if ($this->get_option('debug') && isset($_GET['_reset'])) {
+        if ($this->get_option('debug') === 'yes' && isset($_GET['_reset'])) {
             if (!headers_sent()) {
                 session_start();
             }
@@ -89,6 +89,10 @@ class KEITARO_Public {
 
     public function get_offer_url($offer_id = null)
     {
+        if ($this->get_option('enabled') !== 'yes') {
+            return '#keitaro_plugin_disabled';
+        }
+
         $options = array();
         if (!empty($offer_id)) {
             $options['offer_id'] = $offer_id;
@@ -98,6 +102,9 @@ class KEITARO_Public {
 
     public function send_postback($attrs)
     {
+        if ($this->get_option('enabled') !== 'yes') {
+            return 'Keitaro integration disabled';
+        }
         $postback_url = $this->get_option('postback_url');
         $sub_id = $this->client->getSubId();
         if (!$postback_url) {

@@ -76,6 +76,9 @@ Add parameter `?_reset=1` to page URL.
 
 == Changelog ==
 
+= 0.0.5 =
+Fixed: Option 'Enabled' isn't working
+
 = 0.0.4 =
 Fixed: tracker runs on admin dashboard
 
