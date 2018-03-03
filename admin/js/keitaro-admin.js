@@ -23,7 +23,7 @@
             }
             $('#keitaro-settings-form input').each(function(){
                 var el = $(this);
-                var name = el.attr('name').replace(/keitaro_settings\[(.*?)\]/si, '$1')
+                var name = el.attr('name').replace(/keitaro_settings\[(.*?)\]/gi, '$1');
                 if (json[name]) {
                     el.val(json[name]);
                 }

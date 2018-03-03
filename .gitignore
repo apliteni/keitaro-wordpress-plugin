@@ -2,3 +2,5 @@
 .DS_Store
 keitaro.zip
 .svn
+svn/trunk/*
+svn/assets/*

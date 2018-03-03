@@ -76,6 +76,9 @@ Add parameter `?_reset=1` to page URL.
 
 == Changelog ==
 
+= 0.0.7 =
+Fixed: import settings isn't working in FireFox
+
 = 0.0.6 =
   * Better compatibility with landing page builders
   * Added compatibility with WPForms
