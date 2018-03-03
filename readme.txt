@@ -76,6 +76,13 @@ Add parameter `?_reset=1` to page URL.
 
 == Changelog ==
 
+= 0.0.9 =
+Updated KClickClient
+
+= 0.0.8 =
+  * Fixed: an error on php 5.4
+  * Fixed: issues with radio buttons
+
 = 0.0.7 =
 Fixed: import settings isn't working in FireFox
 

@@ -196,14 +196,14 @@ class Keitaro_Admin {
         $options = $args['options'];
         $description = esc_attr($args['description']);
 
-        foreach ($options as $option) {
+        foreach ($options as $i => $option) {
             if ($option['value'] == $value) {
                 $checked = 'checked';
             } else {
                 $checked = '';
             }
-            echo "<label for='$name'>
-            <input type='radio' name='$name' id='$name' value='{$option['value']}' $checked>
+            echo "<label for='$name-$i'>
+            <input type='radio' name='$name' id='$name-$i' value='{$option['value']}' $checked>
                 {$option['name']}
             </label>&nbsp;&nbsp;";
         }
