@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2018-02-28 14:54+0100\n"
-"PO-Revision-Date: 2018-03-01 15:02+0100\n"
+"POT-Creation-Date: 2018-03-05 18:22+0100\n"
+"PO-Revision-Date: 2018-03-05 18:23+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: ru\n"
@@ -93,44 +93,56 @@ msgstr ""
 "вам достаточно фиксировать только уникальное посещение, выберите 'нет'."
 
 #: admin/class-keitaro-admin.php:159
+msgid "Force redirect to offer"
+msgstr "Редирект на аферы"
+
+#: admin/class-keitaro-admin.php:166
+msgid ""
+"Choose 'yes' in order to perform forced redirects to offers, 'no' if to use "
+"links to the offers."
+msgstr ""
+"Выбирайте 'да', если при выборе оффера нужно выполнять редирект. Выбирайте "
+"'нет', когда нужно создавать ссылки на офферы."
+
+#: admin/class-keitaro-admin.php:173
 #: svn/trunk/admin/class-keitaro-admin.php:159
 msgid "Debug enabled"
 msgstr "Режим отладки"
 
-#: admin/class-keitaro-admin.php:166
+#: admin/class-keitaro-admin.php:180
 #: svn/trunk/admin/class-keitaro-admin.php:166
 msgid "You'll see request and response to Click API on all pages"
 msgstr ""
 "При включенной отладке, вы увидите информацию о том как работает плагин и "
 "какие данные отправляет. Отключайте, если сайт находится публичном доступе"
 
-#: admin/class-keitaro-admin.php:175
+#: admin/class-keitaro-admin.php:189
 #: svn/trunk/admin/class-keitaro-admin.php:175
 msgid "Keitaro Settings"
 msgstr "Настройки Keitaro"
 
-#: admin/class-keitaro-admin.php:220
+#: admin/class-keitaro-admin.php:234
 #: svn/trunk/admin/class-keitaro-admin.php:220
 msgid "Settings successfully imported"
 msgstr "Настройки успешно импортированы. Не забудьте сохранить их"
 
-#: admin/class-keitaro-admin.php:224
+#: admin/class-keitaro-admin.php:238
 #: svn/trunk/admin/class-keitaro-admin.php:224
 msgid "Import settings"
 msgstr "Импортировать настройки"
 
-#: admin/class-keitaro-admin.php:228
+#: admin/class-keitaro-admin.php:242
 #: svn/trunk/admin/class-keitaro-admin.php:228
 msgid "Import"
 msgstr "Импортировать"
 
-#: admin/class-keitaro-admin.php:238
+#: admin/class-keitaro-admin.php:252
 #: svn/trunk/admin/class-keitaro-admin.php:238
 #, php-format
 msgid "More information about %s"
 msgstr "Больше информации о %s"
 
-#: admin/class-keitaro-admin.php:239
+#: admin/class-keitaro-admin.php:253
 #: svn/trunk/admin/class-keitaro-admin.php:239
 msgid "View details"
 msgstr "Смотреть детализацию"

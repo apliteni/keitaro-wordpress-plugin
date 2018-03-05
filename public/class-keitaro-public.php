@@ -61,6 +61,10 @@ class KEITARO_Public {
             return false;
         }
 
+        if ($this->get_option('force_redirect_offer') === 'yes') {
+            $this->client->forceRedirectOffer();
+        }
+
         $this->client->sendAllParams();
         if ($this->get_option('use_title_as_keyword') === 'yes') {
             $this->client->param('default_keyword', get_the_title());

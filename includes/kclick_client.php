@@ -23,7 +23,7 @@ class KClickClient
     private $_trackerUrl;
     private $_params = array();
     private $_log = array();
-    private $_excludeParams = array('api_key', 'token', 'language', 'ua', 'ip', 'referrer', 'uniqueness_cookie');
+    private $_excludeParams = array('api_key', 'token', 'language', 'ua', 'ip', 'referrer', 'uniqueness_cookie', 'force_redirect_offer');
     private $_result;
     private $_stateRestored;
 
@@ -126,6 +126,11 @@ class KClickClient
     {
         $this->_params['keyword'] = $keyword;
         return $this;
+    }
+
+    public function forceRedirectOffer()
+    {
+        $this->_params['force_redirect_offer'] = 1;
     }
 
     public function ip($ip)
@@ -463,9 +468,10 @@ class KClickClient
         }
     }
 
+    // @deprecated
     public function forceChooseOffer()
     {
-        $this->param('forceChooseOffer', true);
+        throw new \Error('forceChooseOffer was removed in KClickClient v3.');
     }
 
     public function getBody()

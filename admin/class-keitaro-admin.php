@@ -155,6 +155,20 @@ class Keitaro_Admin {
         );
 
         add_settings_field(
+            'force_redirect_offer',
+            __('Force redirect to offer', $this->plugin_name),
+            array($this, 'radio_buttons'),
+            $this->hook_suffix,
+            $section, array(
+                'name' => 'keitaro_settings[force_redirect_offer]',
+                'value' => isset($settings['force_redirect_offer']) ? $settings['force_redirect_offer'] : 'no',
+                'options' => $yesNoOptions,
+                'description' => __('Choose \'yes\' in order to perform forced redirects to offers, \'no\' if to use links to the offers.', $this->plugin_name),
+            )
+        );
+
+
+        add_settings_field(
             'debug',
             __('Debug enabled', $this->plugin_name),
             array($this, 'radio_buttons'),

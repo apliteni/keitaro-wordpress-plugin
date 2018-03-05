@@ -76,6 +76,9 @@ Add parameter `?_reset=1` to page URL.
 
 == Changelog ==
 
+= 0.1.0 =
+Added option 'Force redirect to offer'
+
 = 0.0.9 =
 Updated KClickClient
 
