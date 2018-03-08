@@ -167,7 +167,6 @@ class Keitaro_Admin {
             )
         );
 
-
         add_settings_field(
             'debug',
             __('Debug enabled', $this->plugin_name),
@@ -181,8 +180,6 @@ class Keitaro_Admin {
 
             )
         );
-
-
     }
 
     private function settings_page_name() {

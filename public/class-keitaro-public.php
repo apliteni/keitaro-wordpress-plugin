@@ -48,6 +48,8 @@ class KEITARO_Public {
 
         $this->start_catching_output();
 
+        $this->client->param('page', $_SERVER['REQUEST_URI']);
+        
         if ($this->get_option('debug') === 'yes' && isset($_GET['_reset'])) {
             if (!headers_sent()) {
                 session_start();
