@@ -38,6 +38,10 @@ class KEITARO_Public {
             return false;
         }
 
+        if ( $this->is_webvisor() ) {
+            return false;
+        }
+
         if ($this->get_option('enabled') !== 'yes') {
             return false;
         }
@@ -198,5 +202,12 @@ class KEITARO_Public {
         } else {
             return array();
         }
+    }
+
+    private function is_webvisor()
+    {
+        $check = 'mtproxy.yandex.net';
+        return substr($_SERVER['HTTP_HOST'], $check) ||
+            substr($_SERVER['HTTP_X_REAL_HOST'], $check);
     }
 }
