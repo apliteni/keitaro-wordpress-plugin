@@ -34,7 +34,7 @@ class KEITARO_Public {
     }
 
     public function init_tracker() {
-        if ( is_admin() ) {
+        if ( !is_home() && !is_singular() && !is_page() && !is_front_page() && !is_single() ) {
             return false;
         }
 
