@@ -73,8 +73,20 @@ Example:
 = How to reset saved state? =
 Add parameter `?_reset=1` to page URL.
 
+= How to see page reports in Keitaro? =
+Add parameter 'page' to the campaign parameters.
+
+= How to ignore on specific pages? =
+  - Add parameter 'page' to the campaign parameters.
+  - Use filter 'Page' in the streams. For example, to ignore page 'landing-123', filter should be "Page IS NOT '/landing-page'".
+
 
 == Changelog ==
+
+= 0.2.0 =
+  * Send param 'page' that contains current page URI to the tracker
+  * Fixed: incompatibility with Yandex Webvisor
+  * Fixed: tracker runs on system pages, like feed, search, etc.
 
 = 0.1.0 =
 Added option 'Force redirect to offer'
