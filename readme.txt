@@ -83,6 +83,9 @@ Add parameter 'page' to the campaign parameters.
 
 == Changelog ==
 
+= 0.3.2 =
+Fixed an error in RU translation
+
 = 0.3.1 =
 Fixed: various incompatibility issues
 
