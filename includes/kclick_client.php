@@ -439,13 +439,13 @@ class KClickClient
         $this->sendHeaders();
     }
 
-    public function getOffer($params = array())
+    public function getOffer($params = array(), $fallback = 'no_offer')
     {
         $result = $this->performRequest();
         $token = $this->getToken();
         if (empty($token)) {
             $this->_log[] = 'Campaign hasn\'t returned offer';
-            return 'no_offer';
+            return $fallback;
         }
         $params['_lp'] = 1;
         $params['_token'] = $result->info->token;

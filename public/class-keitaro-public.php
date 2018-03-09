@@ -87,8 +87,8 @@ class KEITARO_Public {
     public function final_output($content)
     {
         $patterns = array(
-            '/(http[s]?:\/\/)?\{offer:?([0-9])?\}/si',
-            '/(http[s]?:\/\/)?offer:?([0-9])?/si',
+            '/(http[s]?:\/\/){offer:?([0-9])?\}/si',
+            '/(http[s]?:\/\/)offer:?([0-9])?/si',
         );
         foreach ($patterns as $pattern) {
             $content = $this->replace_with_pattern($pattern, $content);
@@ -121,7 +121,7 @@ class KEITARO_Public {
         if (!empty($offer_id)) {
             $options['offer_id'] = $offer_id;
         }
-        return $this->client->getOffer($options);
+        return $this->client->getOffer($options, '#');
     }
 
     private function start_catching_output()

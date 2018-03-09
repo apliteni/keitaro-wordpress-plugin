@@ -83,6 +83,12 @@ Add parameter 'page' to the campaign parameters.
 
 == Changelog ==
 
+= 0.3.0 =
+Return '#' instead of http://no_offer
+
+= 0.2.2 =
+Fixed: error with 'no_offer'
+
 = 0.2.1 =
 Fixed error 'substr() expects parameter'
 
