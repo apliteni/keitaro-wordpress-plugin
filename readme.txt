@@ -83,6 +83,9 @@ Add parameter 'page' to the campaign parameters.
 
 == Changelog ==
 
+= 0.2.1 =
+Fixed error 'substr() expects parameter'
+
 = 0.2.0 =
   * Send param 'page' that contains current page URI to the tracker
   * Fixed: incompatibility with Yandex Webvisor

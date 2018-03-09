@@ -209,7 +209,7 @@ class KEITARO_Public {
     private function is_webvisor()
     {
         $check = 'mtproxy.yandex.net';
-        return substr($_SERVER['HTTP_HOST'], $check) ||
-            substr($_SERVER['HTTP_X_REAL_HOST'], $check);
+        return strstr($_SERVER['HTTP_HOST'], $check) ||
+            strstr($_SERVER['HTTP_X_REAL_HOST'], $check);
     }
 }
