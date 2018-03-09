@@ -43,7 +43,8 @@ class Plugin_Keitaro {
         $this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
         $this->loader->add_action( 'wp', $plugin_public, 'init_tracker' );
         $this->loader->add_action( 'get_footer', $plugin_public, 'get_footer' );
-        $this->loader->add_filter( 'final_output', $plugin_public, 'final_output');
+        #$this->loader->add_filter( 'final_output', $plugin_public, 'final_output');
+        $this->loader->add_action( 'shutdown', array($plugin_public, 'end_buffer'), 999);
         $this->loader->add_shortcode( 'send_postback', $plugin_public, 'send_postback' );
 
     }

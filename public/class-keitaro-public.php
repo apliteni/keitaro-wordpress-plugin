@@ -34,10 +34,11 @@ class KEITARO_Public {
     }
 
     public function init_tracker() {
-        if ( !is_home() && !is_singular() && !is_page() && !is_front_page() && !is_single() ) {
+        if (is_admin() || is_feed() || is_search() || is_date() || is_month() ||
+            is_year() || is_attachment() || is_author() || is_trackback() ||
+            is_comment_feed() || is_robots() || is_tag() ) {
             return false;
         }
-
         if ( $this->is_webvisor() ) {
             return false;
         }
@@ -46,7 +47,7 @@ class KEITARO_Public {
             return false;
         }
 
-        $this->start_catching_output();
+        $this->start_buffer();
 
         $this->client->param('page', $_SERVER['REQUEST_URI']);
 
@@ -124,17 +125,13 @@ class KEITARO_Public {
         return $this->client->getOffer($options, '#');
     }
 
-    private function start_catching_output()
+    private function start_buffer()
     {
-        ob_start();
-        add_action('shutdown', function() {
-            $final = '';
-            $levels = ob_get_level();
-            for ($i = 0; $i < $levels; $i++) {
-                $final .= ob_get_clean();
-            }
-            echo apply_filters('final_output', $final);
-        }, 0);
+        ob_start(array($this, "final_output"));
+    }
+
+    public function end_buffer(){
+        if (ob_get_length()) ob_end_flush();
     }
 
     public function send_postback($attrs)

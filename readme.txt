@@ -83,6 +83,9 @@ Add parameter 'page' to the campaign parameters.
 
 == Changelog ==
 
+= 0.3.1 =
+Fixed: various incompatibility issues
+
 = 0.3.0 =
 Return '#' instead of http://no_offer
 
