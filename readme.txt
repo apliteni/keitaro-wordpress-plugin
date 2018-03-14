@@ -56,6 +56,10 @@ Full example:
 
 	<a href="{offer}">Buy it now!</a>
 
+In order to get offer link in templates, use do_shortcode():
+
+	<?= do_shortcode('[offer]')?>
+	<?= do_shortcode('[offer offer_id="10"]')?>
 
 = How to track conversions (send postback)? =
 Use shortcode `[send_postback]` on "Thank you" page.
@@ -82,6 +86,9 @@ Add parameter 'page' to the campaign parameters.
 
 
 == Changelog ==
+
+= 0.4.0 =
+Added shortcode [offer].
 
 = 0.3.3 =
 Allow using {offer} in templates

@@ -46,7 +46,7 @@ class Plugin_Keitaro {
         #$this->loader->add_filter( 'final_output', $plugin_public, 'final_output');
         $this->loader->add_action( 'shutdown', array($plugin_public, 'end_buffer'), 999);
         $this->loader->add_shortcode( 'send_postback', $plugin_public, 'send_postback' );
-
+        $this->loader->add_shortcode( 'offer', $plugin_public, 'offer_short_code' );
     }
 
     public function run() {

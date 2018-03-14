@@ -135,6 +135,12 @@ class KEITARO_Public {
         if (ob_get_length()) ob_end_flush();
     }
 
+    public function offer_short_code($attrs)
+    {
+        $offer_id = (isset($attrs['offer_id'])) ? $attrs['offer_id'] : null;
+        return $this->get_offer_url($offer_id);
+    }
+
     public function send_postback($attrs)
     {
         if (empty($attrs)) {
