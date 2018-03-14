@@ -83,6 +83,9 @@ Add parameter 'page' to the campaign parameters.
 
 == Changelog ==
 
+= 0.3.3 =
+Allow using {offer} in templates
+
 = 0.3.2 =
 Fixed an error in RU translation
 

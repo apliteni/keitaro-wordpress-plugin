@@ -90,6 +90,7 @@ class KEITARO_Public {
         $patterns = array(
             '/(http[s]?:\/\/){offer:?([0-9])?\}/si',
             '/(http[s]?:\/\/)offer:?([0-9])?/si',
+            '/\{offer:?([0-9])?\}/si'
         );
         foreach ($patterns as $pattern) {
             $content = $this->replace_with_pattern($pattern, $content);
