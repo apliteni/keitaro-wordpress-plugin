@@ -131,7 +131,8 @@ class KEITARO_Public {
         ob_start(array($this, "final_output"));
     }
 
-    public function end_buffer(){
+    public function end_buffer()
+    {
         if (ob_get_length()) ob_end_flush();
     }
 
@@ -188,7 +189,7 @@ class KEITARO_Public {
 
     private function find_variable($name)
     {
-        foreach ([$_SESSION, $_POST, $_GET] as $source) {
+        foreach (array($_SESSION, $_POST, $_GET) as $source) {
             if (isset($source[$name])) {
                 return $source[$name];
             }

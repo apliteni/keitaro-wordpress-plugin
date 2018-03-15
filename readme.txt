@@ -1,6 +1,6 @@
 === Keitaro Tracker Integration ===
 Contributors: Artur Sabirov
-Tags: metrics, analytics, adsbridge, voluum, keitaro
+Tags: metrics, analytics, keitaro
 Requires at least: 3.3
 Tested up to: 4.9.4
 License: GPLv2
@@ -56,7 +56,7 @@ Full example:
 
 	<a href="{offer}">Buy it now!</a>
 
-In order to get offer link in templates, use do_shortcode():
+In order to get offer link in templates, use `do_shortcode()`:
 
 	<?= do_shortcode('[offer]')?>
 	<?= do_shortcode('[offer offer_id="10"]')?>
@@ -86,6 +86,12 @@ Add parameter 'page' to the campaign parameters.
 
 
 == Changelog ==
+
+= 0.4.2 =
+Fixed issue on php 5.3
+
+= 0.4.1 =
+Fixed 'Warning: call_user_func_array() expects parameter 1 to be a valid callback'
 
 = 0.4.0 =
 Added shortcode [offer].
