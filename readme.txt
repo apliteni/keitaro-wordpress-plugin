@@ -87,6 +87,15 @@ Add parameter 'page' to the campaign parameters.
 
 == Changelog ==
 
+= 0.4.5 =
+Added param 'r' to exclude pages from executing actions
+
+= 0.4.4 =
+Fixed a bug
+
+= 0.4.3 =
+Fixed "Track non-unique visits"
+
 = 0.4.2 =
 Fixed issue on php 5.3
 

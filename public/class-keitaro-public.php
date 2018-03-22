@@ -49,12 +49,13 @@ class KEITARO_Public {
 
         $this->start_buffer();
 
+        if (!headers_sent()) {
+            session_start();
+        }
+
         $this->client->param('page', $_SERVER['REQUEST_URI']);
 
         if ($this->get_option('debug') === 'yes' && isset($_GET['_reset'])) {
-            if (!headers_sent()) {
-                session_start();
-            }
             unset($_SESSION[KClickClient::STATE_SESSION_KEY]);
         }
 
@@ -76,9 +77,14 @@ class KEITARO_Public {
         if ($this->get_option('use_title_as_keyword') === 'yes') {
             $this->client->param('default_keyword', get_the_title());
         }
+
         $this->client->restoreFromQuery();
 
-        if ($this->get_option('track_hits')) {
+        if (isset($_GET['r'])) {
+            return;
+        }
+
+        if ($this->get_option('track_hits') !== 'yes') {
             $this->client->restoreFromSession();
         }
 
