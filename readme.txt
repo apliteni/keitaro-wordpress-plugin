@@ -39,6 +39,9 @@ More information about Keitaro on page <a href="https://keitarotds.com?utm_sourc
 = Which Keitaro version is needed? =
 Keitaro v9.1 or higher.
 
+= Which Keitaro license is needed? =
+Professional or Business.
+
 = How to generate offer link? =
 Use links with href value `{offer}`.
 
@@ -86,6 +89,9 @@ Add parameter 'page' to the campaign parameters.
 
 
 == Changelog ==
+
+= 0.5.0 =
+Do not perform redirects if session is restored
 
 = 0.4.5 =
 Added param 'r' to exclude pages from executing actions

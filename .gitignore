@@ -4,3 +4,4 @@ keitaro.zip
 .svn
 svn/trunk/*
 svn/assets/*
+svn/*/**

@@ -186,6 +186,7 @@ class KEITARO_Public {
         }
 
         $url .= http_build_query($attrs);
+        $this->client->log('Send postback:' . $url);
         $httpClient = new KHttpClient();
         $response = $httpClient->request($url, array());
         if ($response != 'Success') {
