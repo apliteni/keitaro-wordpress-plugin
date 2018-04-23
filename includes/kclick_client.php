@@ -8,10 +8,10 @@ $client->sendAllParams(); # send all params
 $client
 ->keyword('[KEYWORD]')
 ->execute();          # use executeAndBreak() to break the page execution if there is redirect or some output
-
  */
 class KClickClient
 {
+    const VERSION = 3;
     const UNIQUENESS_COOKIE = 'uniqueness_cookie';
     const STATE_SESSION_KEY = 'keitaro_state';
     const STATE_SESSION_EXPIRES_KEY = 'keitaro_state_expires';
@@ -27,7 +27,6 @@ class KClickClient
     private $_result;
     private $_stateRestored;
 
-    const VERSION = 3;
     const ERROR = '[KTrafficClient] Something is wrong. Enable debug mode to see the reason.';
 
     public function __construct($trackerUrl, $token)
@@ -203,6 +202,9 @@ class KClickClient
                 $this->_log[] = 'State expired';
             } else {
                 $this->_result = json_decode($_SESSION[self::STATE_SESSION_KEY], false);
+                if (isset($this->_result) && isset($this->_result->headers)) {
+                    $this->_result->headers = [];
+                }
                 $this->_stateRestored = true;
                 $this->_log[] = 'State restored';
             }
@@ -355,6 +357,11 @@ class KClickClient
         echo '<hr>' . implode($separator, $this->getLog()). '<hr>';
     }
 
+    public function log($msg)
+    {
+        $this->_log[] = $msg;
+    }
+
     public function getLog()
     {
         return $this->_log;
@@ -444,7 +451,7 @@ class KClickClient
         $result = $this->performRequest();
         $token = $this->getToken();
         if (empty($token)) {
-            $this->_log[] = 'Campaign hasn\'t returned offer';
+            $this->log('Campaign hasn\'t returned offer');
             return $fallback;
         }
         $params['_lp'] = 1;
