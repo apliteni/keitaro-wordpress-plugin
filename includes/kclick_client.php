@@ -1,16 +1,19 @@
 <?php
 /**
-Usage:
-require_once 'kclick_client.php';
-$client = new KClickClient('http://tds.com/api.php', 'CAMPAIGN_TOKEN');
-$client->sendUtmLabels(); # send only utm labels
-$client->sendAllParams(); # send all params
-$client
-->keyword('[KEYWORD]')
-->execute();          # use executeAndBreak() to break the page execution if there is redirect or some output
+ * Usage:
+ *  require_once 'kclick_client.php';
+ *  $client = new KClickClient('http://tds.com/api.php', 'CAMPAIGN_TOKEN');
+ *  $client->sendUtmLabels(); # send only utm labels
+ *  $client->sendAllParams(); # send all params
+ *  $client
+ *      ->keyword('[KEYWORD]')
+ *      ->execute();          # use executeAndBreak() to break the page execution if there is redirect or some output
+ *
+ *  @version 3.1
  */
 class KClickClient
 {
+    /** @version 3.1 **/
     const VERSION = 3;
     const UNIQUENESS_COOKIE = 'uniqueness_cookie';
     const STATE_SESSION_KEY = 'keitaro_state';
@@ -41,14 +44,18 @@ class KClickClient
     public function fillParams()
     {
         $referrer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : null;
-        $this->setHttpClient(new KHttpClient())
-            ->ip($this->_findIp())
+        $this->setHttpClient(new KHttpClient());
+
+        $this->ip($this->_findIp())
             ->ua(isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : null)
             ->language((isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2) : ''))
             ->seReferrer($referrer)
             ->referrer($referrer)
-            ->setUniquenessCookie($this->_getUniquenessCookie())
-        ;
+            ->setUniquenessCookie($this->_getUniquenessCookie());
+
+        if ($this->isPrefetchDetected()) {
+            $this->param('prefetch', 1);
+        }
     }
 
     public function currentPageAsReferrer()
@@ -203,7 +210,7 @@ class KClickClient
             } else {
                 $this->_result = json_decode($_SESSION[self::STATE_SESSION_KEY], false);
                 if (isset($this->_result) && isset($this->_result->headers)) {
-                    $this->_result->headers = [];
+                    $this->_result->headers = array();
                 }
                 $this->_stateRestored = true;
                 $this->_log[] = 'State restored';
@@ -233,6 +240,13 @@ class KClickClient
     {
         return $this->_stateRestored;
     }
+
+    public function isPrefetchDetected()
+    {
+        return (isset($_SERVER['HTTP_X_PURPOSE']) && $_SERVER['HTTP_X_PURPOSE'] === 'preview') ||
+            (isset($_SERVER['HTTP_X_MOZ']) && $_SERVER['HTTP_X_MOZ'] === 'prefetch');
+    }
+
 
     private function _saveCookie($key, $value, $ttl)
     {
@@ -343,9 +357,12 @@ class KClickClient
             if (!empty($result->error)) {
                 $content .=  $result->error;
             }
-
             if (!empty($result->body)) {
-                $content .= $result->body;
+                if (isset($result->contentType) && (strstr($result->contentType, 'image') || strstr($result->contentType, 'application/pdf'))) {
+                    $content = base64_decode($result->body);
+                } else {
+                    $content .= $result->body;
+                }
             }
         }
 
@@ -600,7 +617,7 @@ class KHttpClient
         curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_setopt($ch, CURLOPT_COOKIE, isset($opts['cookies']) ? $opts['cookies'] : null);
         curl_setopt($ch, CURLOPT_NOBODY, 0);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
         curl_setopt($ch, CURLOPT_USERAGENT, self::UA);
         $result = curl_exec($ch);
         if (curl_error($ch)) {
