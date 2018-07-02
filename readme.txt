@@ -90,6 +90,12 @@ Add parameter 'page' to the campaign parameters.
 
 == Changelog ==
 
+= 0.6.1 =
+Use _subid over session value
+
+= 0.6.0 =
+Ignore prefetch requests
+
 = 0.5.0 =
 Do not perform redirects if session is restored
 
