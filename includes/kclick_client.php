@@ -9,15 +9,18 @@
  *      ->keyword('[KEYWORD]')
  *      ->execute();          # use executeAndBreak() to break the page execution if there is redirect or some output
  *
- *  @version 3.1
+ *  @version 3.2
  */
 class KClickClient
 {
+    const SESSION_SUB_ID = 'sub_id';
+    const SESSION_LANDING_TOKEN = 'landing_token';
     /** @version 3.1 **/
     const VERSION = 3;
     const UNIQUENESS_COOKIE = 'uniqueness_cookie';
     const STATE_SESSION_KEY = 'keitaro_state';
     const STATE_SESSION_EXPIRES_KEY = 'keitaro_state_expires';
+    const DEFAULT_TTL = 1;
     /**
      * @var KHttpClient
      */
@@ -231,6 +234,7 @@ class KClickClient
             if (isset($_GET['_token'])) {
                 $this->_result->info->token = $_GET['_token'];
                 $this->_log[] = 'Landing token loaded from query';
+                $this->_storeState($this->_result, self::DEFAULT_TTL);
             }
             $this->_stateRestored = true;
         }
@@ -408,10 +412,10 @@ class KClickClient
         // for back-compatibility purpose
         if (!empty($result->info)) {
             if (!empty($result->info->sub_id)) {
-                $_SESSION['sub_id'] = $result->info->sub_id;
+                $_SESSION[self::SESSION_SUB_ID] = $result->info->sub_id;
             }
             if (!empty($result->info->token)) {
-                $_SESSION['landing_token'] = $result->info->token;
+                $_SESSION[self::SESSION_LANDING_TOKEN] = $result->info->token;
             }
         }
     }

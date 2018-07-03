@@ -90,6 +90,9 @@ Add parameter 'page' to the campaign parameters.
 
 == Changelog ==
 
+= 0.6.2 =
+Fix storing param _subid in session
+
 = 0.6.1 =
 Use _subid over session value
 
