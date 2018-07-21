@@ -9,7 +9,7 @@
  *      ->keyword('[KEYWORD]')
  *      ->execute();          # use executeAndBreak() to break the page execution if there is redirect or some output
  *
- *  @version 3.2
+ *  @version 3.3
  */
 class KClickClient
 {
@@ -234,8 +234,8 @@ class KClickClient
             if (isset($_GET['_token'])) {
                 $this->_result->info->token = $_GET['_token'];
                 $this->_log[] = 'Landing token loaded from query';
-                $this->_storeState($this->_result, self::DEFAULT_TTL);
             }
+            $this->_storeState($this->_result, self::DEFAULT_TTL);
             $this->_stateRestored = true;
         }
     }

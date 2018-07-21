@@ -4,6 +4,8 @@ class Keitaro_Admin {
     private $plugin_name;
     private $version;
     private $hook_suffix;
+    private $main_settings_group;
+    private $page_settings_group;
 
     public function __construct( $plugin_name, $version ) {
         $this->plugin_name = $plugin_name;
@@ -31,37 +33,58 @@ class Keitaro_Admin {
             array($this, 'show_settings_page'),
             'none'
         );
+        $this->main_settings_group = $this->hook_suffix . '_main';
+        $this->page_settings_group = $this->hook_suffix . '_pages';
     }
 
     public function show_settings_page() {
-        #$this->_prepare_settings();
-        //do_action( 'add_' . $this->plugin_name . '_section' );
+        $active_tab = isset( $_GET[ 'tab' ] ) ? $_GET[ 'tab' ] : 'main';
+
         echo '<div class="wrap">';
         echo '<header><h1>' . esc_html( $this->settings_page_name() ) . '</h1></header>';
-        settings_errors( 'general' );
+        settings_errors( );
+
+        echo '<h2 class="nav-tab-wrapper">
+            <a href="?page=keitaro&tab=main" class="nav-tab ' . ($active_tab == 'main' ? 'nav-tab-active' : '') . '">' . __('Main Settings', $this->plugin_name) . '</a>
+            <a href="?page=keitaro&tab=pages" class="nav-tab ' . ($active_tab == 'pages' ? 'nav-tab-active' : '') . '">' . __('Page Settings', $this->plugin_name) . '</a>
+        </h2>';
+
         echo '<form id="keitaro-settings-form" method="post" action="options.php">';
-        settings_fields( $this->hook_suffix );
-        do_settings_sections( $this->hook_suffix );
+
+        if ( $active_tab === 'main' ) {
+            settings_fields($this->main_settings_group);
+            do_settings_sections($this->main_settings_group);
+        } else {
+            settings_fields($this->hook_suffix . '_pages');
+            do_settings_sections($this->hook_suffix . '_pages');
+        }
         submit_button();
+
         echo '</form>';
         echo '</div>';
     }
 
     public function admin_init() {
-        register_setting($this->hook_suffix, 'keitaro_settings');
+        register_setting($this->main_settings_group, 'keitaro_settings');
+        register_setting($this->page_settings_group, 'keitaro_page_settings');
 
+        $this->init_main_settings($this->main_settings_group);
+        $this->init_page_settings($this->page_settings_group);
+    }
+
+    public function init_main_settings($group) {
         $settings = (array) get_option('keitaro_settings');
         $section = 'keitaro_main_section';
-        $yesNoOptions = [
-            ['name' => __('Yes', $this->plugin_name), 'value' => 'yes'],
-            ['name' => __('No', $this->plugin_name), 'value' => 'no'],
-        ];
+        $yesNoOptions = array(
+            array('name' => __('Yes', $this->plugin_name), 'value' => 'yes'),
+            array('name' => __('No', $this->plugin_name), 'value' => 'no'),
+        );
 
         add_settings_section(
             $section,
             __('Main', $this->plugin_name),
             null,
-            $this->hook_suffix
+            $group
         );
 
 
@@ -69,7 +92,7 @@ class Keitaro_Admin {
             'import',
             '',
             array($this, 'import_settings'),
-            $this->hook_suffix,
+            $group,
             $section
         );
 
@@ -77,7 +100,7 @@ class Keitaro_Admin {
             'enabled',
             __('Enabled', $this->plugin_name),
             array($this, 'radio_buttons'),
-            $this->hook_suffix,
+            $group,
             $section, array(
                 'name' => 'keitaro_settings[enabled]',
                 'value' => isset($settings['enabled']) ? $settings['enabled'] : 'no',
@@ -90,7 +113,7 @@ class Keitaro_Admin {
             'tracker_url',
             __('Tracker URL', $this->plugin_name),
             array($this, 'text_input'),
-            $this->hook_suffix,
+            $group,
             $section, array(
                 'name' => 'keitaro_settings[tracker_url]',
                 'value' => $settings['tracker_url'],
@@ -104,7 +127,7 @@ class Keitaro_Admin {
             'postback_url',
             __('Postback URL', $this->plugin_name),
             array($this, 'text_input'),
-            $this->hook_suffix,
+            $group,
             $section, array(
                 'name' => 'keitaro_settings[postback_url]',
                 'value' => $settings['postback_url'],
@@ -116,14 +139,14 @@ class Keitaro_Admin {
 
         add_settings_field(
             'token',
-            __('Campaign token', $this->plugin_name),
+            __('Primary Campaign Token', $this->plugin_name),
             array($this, 'text_input'),
-            $this->hook_suffix,
+            $group,
             $section, array(
                 'name' => 'keitaro_settings[token]',
                 'value' => $settings['token'],
                 'size' => 35,
-                'description' => __('Enter campaign token from the campaign settings', $this->plugin_name)
+                'description' => __('Enter the token of your primary campaign from the campaign settings. You can call another campaign in the Pages Settings.', $this->plugin_name)
             )
         );
 
@@ -131,7 +154,7 @@ class Keitaro_Admin {
             'use_title_as_keyword',
             __('Use post title as keyword', $this->plugin_name),
             array($this, 'radio_buttons'),
-            $this->hook_suffix,
+            $group,
             $section, array(
                 'name' => 'keitaro_settings[use_title_as_keyword]',
                 'value' => isset($settings['use_title_as_keyword']) ? $settings['use_title_as_keyword'] : 'no',
@@ -144,7 +167,7 @@ class Keitaro_Admin {
             'track_hits',
             __('Track non-unique visits', $this->plugin_name),
             array($this, 'radio_buttons'),
-            $this->hook_suffix,
+            $group,
             $section, array(
                 'name' => 'keitaro_settings[track_hits]',
                 'value' => isset($settings['track_hits']) ? $settings['track_hits'] : 'yes',
@@ -158,7 +181,7 @@ class Keitaro_Admin {
             'force_redirect_offer',
             __('Force redirect to offer', $this->plugin_name),
             array($this, 'radio_buttons'),
-            $this->hook_suffix,
+            $group,
             $section, array(
                 'name' => 'keitaro_settings[force_redirect_offer]',
                 'value' => isset($settings['force_redirect_offer']) ? $settings['force_redirect_offer'] : 'no',
@@ -171,7 +194,7 @@ class Keitaro_Admin {
             'debug',
             __('Debug enabled', $this->plugin_name),
             array($this, 'radio_buttons'),
-            $this->hook_suffix,
+            $group,
             $section, array(
                 'name' => 'keitaro_settings[debug]',
                 'value' => isset($settings['debug']) ? $settings['debug'] : 'no',
@@ -182,18 +205,137 @@ class Keitaro_Admin {
         );
     }
 
+    private function init_page_settings($group) {
+        $settings = (array) get_option('keitaro_page_settings');
+        $section = 'keitaro_main_section';
+
+        add_settings_section(
+            $section,
+            '',
+            null,
+            $group
+        );
+
+        $options = array(
+            array('name' => __('Call primary campaign on every page', $this->plugin_name), 'value' => 'no'),
+            array('name' => __('Specify pages and campaigns', $this->plugin_name), 'value' => 'yes'),
+        );
+
+        add_settings_field(
+            'specify_pages',
+            __('Specify pages', $this->plugin_name),
+            array($this, 'radio_buttons'),
+            $group,
+            $section, array(
+                'name' => 'keitaro_page_settings[specify_pages]',
+                'value' => isset($settings['specify_pages']) ? $settings['specify_pages'] : 'no',
+                'options' => $options,
+            )
+        );
+
+        add_settings_field(
+            'pages',
+            '',
+            array($this, 'pages_table'),
+            $group,
+            $section,
+            array(
+                'name' => 'keitaro_page_settings[pages]',
+                'selected' => @$settings['pages']
+            )
+        );
+
+    }
+
+    public function pages_table($args) {
+        echo '<div class="keitaro-pages">';
+
+        echo '<div class="keitaro-pages-page keitaro-pages-header">';
+        echo '<div class="keitaro-pages-page-item keitaro-pages-page-name">' . __('Page Name', $this->plugin_name) . '</div>';
+        echo '<div class="keitaro-pages-page-item keitaro-pages-page-campaign">' . __('Campaign', $this->plugin_name) . '</div>';
+        echo '</div>';
+
+
+        $pages = get_pages(array(
+            'sort_order' => 'asc',
+            'sort_column' => 'post_title',
+            'hierarchical' => 1,
+            'exclude' => '',
+            'include' => '',
+            'meta_key' => '',
+            'meta_value' => '',
+            'authors' => '',
+            'child_of' => 0,
+            'parent' => -1,
+            'exclude_tree' => '',
+            'number' => '',
+            'offset' => 0,
+            'post_type' => 'page',
+        ));
+
+        foreach ($pages as $page) {
+            echo '<div class="keitaro-pages-page">';
+
+            echo '<div class="keitaro-pages-page-item keitaro-pages-page-name">' . $page->post_title . '</div>';
+            echo '<div class="keitaro-pages-page-item keitaro-pages-page-campaign">';
+            $name = $args['name'] . '[' . $page->ID . ']';
+            $value = @$args['selected'][$page->ID];
+            if ($value && $value !='primary_campaign') {
+                $selectedValue = 'another';
+            } else {
+                $selectedValue = $value;
+            }
+            echo $this->get_campaign_selector(
+                $name,
+                $selectedValue
+            );
+
+            $this->text_input(array(
+                'name' => $name,
+                'value' => $value,
+                'class' => 'keitaro-pages-page-token',
+                'placeholder' => __('Campaign Token', $this->plugin_name),
+                'size' => 30
+            ));
+
+            echo '</div>';
+
+            echo '</div>';
+        }
+
+
+
+        echo '</div>';
+    }
+
+    private function get_campaign_selector($name, $selectedValue) {
+        $options = array(
+            array('name' => __('Do Nothing', $this->plugin_name), 'value' => ''),
+            array('name' => __('Primary Campaign', $this->plugin_name), 'value' => 'primary_campaign'),
+            array('name' => __('Another', $this->plugin_name), 'value' => 'another'),
+        );
+        
+        $this->select(array(
+            'name' => $name,
+            'options' => $options,
+            'selected' => $selectedValue
+        ));
+
+    }
+
     private function settings_page_name() {
         return __( 'Keitaro Settings', $this->plugin_name);
     }
 
     function text_input($args) {
         $name = esc_attr($args['name']);
+        $class = esc_attr($args['class']);
         $value = esc_attr($args['value']);
         $size = esc_attr($args['size']);
         $placeholder = esc_attr($args['placeholder']);
         $description = esc_attr($args['description']);
 
-        echo "<input type='text' name='$name' size='$size' value='$value' placeholder='$placeholder' />";
+        echo "<input class='$class keitaro-hidden' type='text' name='$name' size='$size' value='$value' placeholder='$placeholder' />";
         if (!empty($description)) {
             echo '<p class="description">';
             echo esc_html($description);
@@ -218,6 +360,28 @@ class Keitaro_Admin {
                 {$option['name']}
             </label>&nbsp;&nbsp;";
         }
+        if (!empty($description)) {
+            echo '<p class="description">';
+            echo esc_html($description);
+            echo '</p>';
+        }
+    }
+
+    function select($args) {
+        $name = esc_attr($args['name']);
+        $selected = esc_attr($args['selected']);
+        $options = $args['options'];
+        $description = esc_attr($args['description']);
+        echo "<select name=\"{$name}\">";
+        foreach ($options as $i => $option) {
+            if ($option['value'] === $selected) {
+                $isSelected = 'selected';
+            } else {
+                $isSelected = '';
+            }
+            echo "<option value=\"{$option['value']}\" {$isSelected}>{$option['name']}</option>";
+        }
+        echo "</select>";
         if (!empty($description)) {
             echo '<p class="description">';
             echo esc_html($description);

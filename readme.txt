@@ -90,6 +90,9 @@ Add parameter 'page' to the campaign parameters.
 
 == Changelog ==
 
+= 0.6.3 =
+Fix storing token
+
 = 0.6.2 =
 Fix storing param _subid in session
 
