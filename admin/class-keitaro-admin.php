@@ -218,12 +218,12 @@ class Keitaro_Admin {
 
         $options = array(
             array('name' => __('Call primary campaign on every page', $this->plugin_name), 'value' => 'no'),
-            array('name' => __('Specify pages and campaigns', $this->plugin_name), 'value' => 'yes'),
+            array('name' => __('Specify manually', $this->plugin_name), 'value' => 'yes'),
         );
 
         add_settings_field(
             'specify_pages',
-            __('Specify pages', $this->plugin_name),
+            __('Choose campaigns', $this->plugin_name),
             array($this, 'radio_buttons'),
             $group,
             $section, array(
@@ -235,7 +235,7 @@ class Keitaro_Admin {
 
         add_settings_field(
             'pages',
-            '',
+            __('Pages'),
             array($this, 'pages_table'),
             $group,
             $section,

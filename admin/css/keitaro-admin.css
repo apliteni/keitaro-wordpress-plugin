@@ -21,15 +21,13 @@ li.toplevel_page_keitaro .wp-menu-image:before {
 }
 
 .keitaro-pages {
-    display: flex;
+    display: table;
     justify-content: space-between;
     width: 100%;
-    flex-flow: column nowrap;
 }
 
 .keitaro-pages-page {
-    display: flex;
-    flex-flow: row nowrap;
+    display: table-row;
     border-bottom: 1px solid rgba(0,0,0,.1);
 }
 
@@ -39,9 +37,7 @@ li.toplevel_page_keitaro .wp-menu-image:before {
 
 
 .keitaro-pages-page-item {
-    display: flex;
-    flex-flow: row nowrap;
-    flex-grow: 1;
+    display: table-cell;
     padding: 0.5em;
     min-height: 24px;
     vertical-align: middle;
