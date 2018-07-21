@@ -4,18 +4,15 @@ class KEITARO_Public {
     private $version;
     private $client;
     public function __construct( $plugin_name, $version ) {
+        require_once plugin_dir_path( __FILE__  ). '../includes/kclick_client.php';
+
         $this->plugin_name = $plugin_name;
         $this->version = $version;
-
-        require_once plugin_dir_path( __FILE__  ). '../includes/kclick_client.php';
 
         $this->client = new KClickClient(
             $this->get_option('tracker_url') . '/api.php?',
             $this->get_option('token')
         );
-    }
-    public function enqueue_scripts() {
-        //wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/keitaro-public.js', array( 'jquery' ), $this->version, false );
     }
 
     public function get_footer()
@@ -33,18 +30,51 @@ class KEITARO_Public {
         return isset($settings[$key]) ? $settings[$key] :null;
     }
 
+    private function get_page_options($key) {
+        $settings = (array) get_option( $this->plugin_name . '_page_settings' );
+        return isset($settings[$key]) ? $settings[$key] :null;
+    }
+
+    private function get_page_option_for($id) {
+        $pages = $this->get_page_options('pages');
+        return (isset($pages[$id])) ? $pages[$id] : null;
+    }
+
     public function init_tracker() {
+        // Check if enabled
+        if ($this->get_option('enabled') !== 'yes') {
+            return false;
+        }
+
+        // Do not run on system pages
         if (is_admin() || is_feed() || is_search() || is_date() || is_month() ||
             is_year() || is_attachment() || is_author() || is_trackback() ||
             is_comment_feed() || is_robots() || is_tag() ) {
             return false;
         }
+
+        // Allow webvisor to see original content
         if ( $this->is_webvisor() ) {
             return false;
         }
 
-        if ($this->get_option('enabled') !== 'yes') {
-            return false;
+        // Custom page settings
+        if ($this->get_page_options('specify_pages') === 'yes') {
+            if (get_post_type() !== 'page') {
+                return false;
+            }
+
+            $value = $this->get_page_option_for(get_the_ID());
+
+            switch ($value) {
+                case '':
+                    return;
+                    break;
+                case 'primary_campaign':
+                    break;
+                default:
+                    $this->client->token($value);
+            }
         }
 
         $this->start_buffer();

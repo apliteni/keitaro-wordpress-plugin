@@ -293,7 +293,7 @@ class Keitaro_Admin {
             $this->text_input(array(
                 'name' => $name,
                 'value' => $value,
-                'class' => 'keitaro-pages-page-token',
+                'class' => 'keitaro-pages-page-token keitaro-hidden',
                 'placeholder' => __('Campaign Token', $this->plugin_name),
                 'size' => 30
             ));
@@ -335,7 +335,7 @@ class Keitaro_Admin {
         $placeholder = esc_attr($args['placeholder']);
         $description = esc_attr($args['description']);
 
-        echo "<input class='$class keitaro-hidden' type='text' name='$name' size='$size' value='$value' placeholder='$placeholder' />";
+        echo "<input class='$class' type='text' name='$name' size='$size' value='$value' placeholder='$placeholder' />";
         if (!empty($description)) {
             echo '<p class="description">';
             echo esc_html($description);
