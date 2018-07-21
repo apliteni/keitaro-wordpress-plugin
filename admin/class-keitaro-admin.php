@@ -271,6 +271,7 @@ class Keitaro_Admin {
             'number' => '',
             'offset' => 0,
             'post_type' => 'page',
+            'post_status' =>  'publish,draft'
         ));
 
         foreach ($pages as $page) {

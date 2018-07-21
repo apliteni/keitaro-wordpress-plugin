@@ -91,7 +91,7 @@ Add parameter 'page' to the campaign parameters.
 == Changelog ==
 
 = 0.7.0 =
-Allow specifying different Keitaro campaigns to the pages
+Added some new settings to specify different campaign on different pages
 
 = 0.6.3 =
 Fix storing token
