@@ -1,5 +1,5 @@
 === Keitaro Tracker Integration ===
-Contributors: Artur Sabirov
+Contributors: Keitaro Team
 Tags: metrics, analytics, keitaro
 Requires at least: 3.3
 Tested up to: 4.9.4
@@ -89,6 +89,9 @@ Add parameter 'page' to the campaign parameters.
 
 
 == Changelog ==
+
+= 0.7.1 =
+Updated kclick_client.php to v3.4
 
 = 0.7.0 =
 Added some new settings to specify different campaign on different pages

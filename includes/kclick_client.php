@@ -9,7 +9,7 @@
  *      ->keyword('[KEYWORD]')
  *      ->execute();          # use executeAndBreak() to break the page execution if there is redirect or some output
  *
- *  @version 3.3
+ *  @version 3.5
  */
 class KClickClient
 {
@@ -167,7 +167,7 @@ class KClickClient
     {
         $result = $this->performRequest();
         if (empty($result->info->sub_id)) {
-            $this->_log[] = 'No sub_id is defined';
+            $this->log('No sub_id is defined');
             return 'no_subid';
         }
         $subId = $result->info->sub_id;
@@ -178,7 +178,7 @@ class KClickClient
     {
         $result = $this->performRequest();
         if (empty($result->info->sub_id)) {
-            $this->_log[] = 'No landing token is defined';
+            $this->log('No landing token is defined');
             return 'no_token';
         }
         $subId = $result->info->token;
@@ -209,14 +209,14 @@ class KClickClient
             if ($_SESSION[self::STATE_SESSION_EXPIRES_KEY] < time()) {
                 unset($_SESSION[self::STATE_SESSION_KEY]);
                 unset($_SESSION[self::STATE_SESSION_EXPIRES_KEY]);
-                $this->_log[] = 'State expired';
+                $this->log('State expired');
             } else {
                 $this->_result = json_decode($_SESSION[self::STATE_SESSION_KEY], false);
                 if (isset($this->_result) && isset($this->_result->headers)) {
                     $this->_result->headers = array();
                 }
                 $this->_stateRestored = true;
-                $this->_log[] = 'State restored';
+                $this->log('State restored');
             }
         }
     }
@@ -230,10 +230,10 @@ class KClickClient
                 $this->_result->info = new StdClass();
             }
             $this->_result->info->sub_id = $_GET['_subid'];
-            $this->_log[] = 'SubId loaded from query';
+            $this->log('SubId loaded from query');
             if (isset($_GET['_token'])) {
                 $this->_result->info->token = $_GET['_token'];
-                $this->_log[] = 'Landing token loaded from query';
+                $this->log('Landing token loaded from query');
             }
             $this->_storeState($this->_result, self::DEFAULT_TTL);
             $this->_stateRestored = true;
@@ -297,10 +297,10 @@ class KClickClient
         }
         $request = $this->_buildRequestUrl();
         $options = $this->_getRequestOptions();
-        $this->_log[] = 'Request: ' . $request;
+        $this->log('Request: ' . $request);
         try {
             $result = $this->_httpClient->request($request, $options);
-            $this->_log[] = 'Response: ' . $result;
+            $this->log('Response: ' . $result);
         } catch (KTrafficClientError $e) {
             if ($this->_debug) {
                 throw $e;
@@ -380,6 +380,9 @@ class KClickClient
 
     public function log($msg)
     {
+        if ($this->_debug) {
+            error_log($msg);
+        }
         $this->_log[] = $msg;
     }
 
@@ -437,10 +440,16 @@ class KClickClient
     {
         $result = $this->performRequest();
         $headers = array();
-
-        if (!empty($result->status)) {
-            http_response_code($result->status);
+        $file = "";
+        $line = "";
+        if (headers_sent($file, $line)) {
+            $msg = "Body output already started";
+            if (!empty($file)) {
+                $msg .= "({$file}:{$line})";
+            }
+            $this->log($msg);
         }
+
 
         if (!empty($result->headers)) {
             foreach ($result->headers as $header) {
@@ -449,6 +458,10 @@ class KClickClient
                     header($header);
                 }
             }
+        }
+
+        if (!empty($result->status)) {
+            http_response_code($result->status);
         }
 
         if (!empty($result->contentType)) {
@@ -557,7 +570,20 @@ class KClickClient
     private function _findIp()
     {
         $ip = null;
-        $headers = array('HTTP_X_FORWARDED_FOR', 'HTTP_CF_CONNECTING_IP', 'HTTP_X_REAL_IP', 'REMOTE_ADDR');
+        $headers = array('HTTP_VIA',
+            'HTTP_X_FORWARDED_FOR',
+            'HTTP_FORWARDED_FOR',
+            'HTTP_X_FORWARDED',
+            'HTTP_FORWARDED',
+            'HTTP_CLIENT_IP',
+            'HTTP_FORWARDED_FOR_IP',
+            'X_FORWARDED_FOR',
+            'FORWARDED_FOR',
+            'X_FORWARDED',
+            'FORWARDED',
+            'CLIENT_IP',
+            'FORWARDED_FOR_IP',
+            'HTTP_PROXY_CONNECTION');
         foreach ($headers as $header) {
             if (!empty($_SERVER[$header])) {
                 $tmp = explode(',', $_SERVER[$header]);
