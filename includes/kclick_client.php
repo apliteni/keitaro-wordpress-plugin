@@ -9,15 +9,13 @@
  *      ->keyword('[KEYWORD]')
  *      ->execute();          # use executeAndBreak() to break the page execution if there is redirect or some output
  *
- *  @version 3.5
  */
 class KClickClient
 {
     const SESSION_SUB_ID = 'sub_id';
     const SESSION_LANDING_TOKEN = 'landing_token';
-    /** @version 3.1 **/
+    /** @version 3.3 **/
     const VERSION = 3;
-    const UNIQUENESS_COOKIE = 'uniqueness_cookie';
     const STATE_SESSION_KEY = 'keitaro_state';
     const STATE_SESSION_EXPIRES_KEY = 'keitaro_state_expires';
     const DEFAULT_TTL = 1;
@@ -29,7 +27,7 @@ class KClickClient
     private $_trackerUrl;
     private $_params = array();
     private $_log = array();
-    private $_excludeParams = array('api_key', 'token', 'language', 'ua', 'ip', 'referrer', 'uniqueness_cookie', 'force_redirect_offer');
+    private $_excludeParams = array('api_key', 'token', 'language', 'ua', 'ip', 'referrer', 'force_redirect_offer');
     private $_result;
     private $_stateRestored;
 
@@ -54,7 +52,7 @@ class KClickClient
             ->language((isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2) : ''))
             ->seReferrer($referrer)
             ->referrer($referrer)
-            ->setUniquenessCookie($this->_getUniquenessCookie());
+            ->param('kversion', '3.4');
 
         if ($this->isPrefetchDetected()) {
             $this->param('prefetch', 1);
@@ -88,12 +86,6 @@ class KClickClient
     public function setHttpClient($httpClient)
     {
         $this->_httpClient = $httpClient;
-        return $this;
-    }
-
-    public function setUniquenessCookie($value)
-    {
-        $this->_params[self::UNIQUENESS_COOKIE] = $value;
         return $this;
     }
 
@@ -194,11 +186,6 @@ class KClickClient
         }
     }
 
-    public function saveUniquenessCookie($value, $ttl)
-    {
-        $this->_saveCookie($this->getUniquenessCookieName(), $value, $ttl);
-    }
-
     public function restoreFromSession()
     {
         if ($this->isStateRestored()) {
@@ -251,8 +238,7 @@ class KClickClient
             (isset($_SERVER['HTTP_X_MOZ']) && $_SERVER['HTTP_X_MOZ'] === 'prefetch');
     }
 
-
-    private function _saveCookie($key, $value, $ttl)
+    public function saveCookie($key, $value, $ttl)
     {
         if (isset($_COOKIE[$key]) && $_COOKIE[$key] == $value) {
             return;
@@ -296,10 +282,11 @@ class KClickClient
             return $this->_result;
         }
         $request = $this->_buildRequestUrl();
+        $params = $this->getParams();
         $options = $this->_getRequestOptions();
         $this->log('Request: ' . $request);
         try {
-            $result = $this->_httpClient->request($request, $options);
+            $result = $this->_httpClient->request($request, $params, $options);
             $this->log('Response: ' . $result);
         } catch (KTrafficClientError $e) {
             if ($this->_debug) {
@@ -313,11 +300,10 @@ class KClickClient
             $this->_result,
             isset($this->_result->cookies_ttl) ? $this->_result->cookies_ttl : null
         );
-        $this->_saveKeitaroCookies(
-            isset($this->_result->uniqueness_cookie) ? $this->_result->uniqueness_cookie : null,
-            isset($this->_result->cookies) ? $this->_result->cookies : null,
-            isset($this->_result->cookies_ttl) ? $this->_result->cookies_ttl : null
-        );
+
+        if (isset($this->_result->cookies)) {
+            $this->_saveKeitaroCookies($this->_result->cookies , $this->_result->cookies_ttl);
+        }
         return $this->_result;
     }
 
@@ -391,11 +377,6 @@ class KClickClient
         return $this->_log;
     }
 
-    public function getUniquenessCookieName()
-    {
-        return hash('sha1', $this->_trackerUrl);
-    }
-
     public function executeAndBreak()
     {
         $this->execute(true);
@@ -423,16 +404,10 @@ class KClickClient
         }
     }
 
-    private function _saveKeitaroCookies($uniquenessCookie, $cookies, $ttl)
+    private function _saveKeitaroCookies($cookies, $ttl)
     {
-        if (!empty($uniquenessCookie)) {
-            $this->saveUniquenessCookie($uniquenessCookie, $ttl);
-        }
-
-        if (!empty($cookies)) {
-            foreach ($cookies as $key => $value) {
-                $this->_saveCookie($key, $value, $ttl);
-            }
+        foreach ($cookies as $key => $value) {
+            $this->saveCookie($key, $value, $ttl);
         }
     }
 
@@ -562,15 +537,14 @@ class KClickClient
     private function _buildRequestUrl()
     {
         $request = parse_url($this->_trackerUrl);
-        $params = http_build_query($this->getParams());
-        return "{$request['scheme']}://{$request['host']}/{$request['path']}?{$params}";
+        return "{$request['scheme']}://{$request['host']}/{$request['path']}";
     }
 
 
     private function _findIp()
     {
         $ip = null;
-        $headers = array('HTTP_VIA',
+        $headers = array(
             'HTTP_X_FORWARDED_FOR',
             'HTTP_FORWARDED_FOR',
             'HTTP_X_FORWARDED',
@@ -607,11 +581,6 @@ class KClickClient
         return $ip;
     }
 
-    private function _getUniquenessCookie()
-    {
-        return !empty($_COOKIE[$this->getUniquenessCookieName()]) ? $_COOKIE[$this->getUniquenessCookieName()] : '';
-    }
-
     private function _getCookiesExpireTimestamp($ttl)
     {
         return time() + 60 * 60 * $ttl;
@@ -629,9 +598,12 @@ class KClickClient
 
     private function _getRequestOptions()
     {
-        return array(
-            'cookies' => isset($_SERVER["HTTP_COOKIE"]) ? $_SERVER["HTTP_COOKIE"] : null,
-        );
+        $opts = array();
+        if (isset($_SERVER["HTTP_COOKIE"])) {
+            $opts['cookies'] = preg_replace('/PHPSESSID=.*?;/si', '', $_SERVER["HTTP_COOKIE"]);
+        }
+
+        return $opts;
     }
 }
 
@@ -639,7 +611,7 @@ class KHttpClient
 {
     const UA = 'KHttpClient';
 
-    public function request($url, $opts = array())
+    public function request($url, $params, $opts = array())
     {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -649,6 +621,8 @@ class KHttpClient
         curl_setopt($ch, CURLOPT_NOBODY, 0);
         curl_setopt($ch, CURLOPT_TIMEOUT, 10);
         curl_setopt($ch, CURLOPT_USERAGENT, self::UA);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params));
         $result = curl_exec($ch);
         if (curl_error($ch)) {
             throw new KTrafficClientError(curl_error($ch));
