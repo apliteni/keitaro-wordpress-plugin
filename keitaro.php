@@ -4,7 +4,7 @@
  * Plugin Name:       Keitaro Tracker Integration
  * Plugin URI:        https://github.com/apliteni/keitaro-wordpress-plugin
  * Description:       This plugin integrates WP with Keitaro tracker.
- * Version:           0.7.1
+ * Version:           0.7.2
  * Author:            Artur Sabirov
  * Author URI:        https://github.com/apliteni
  * License:           GPL-2.0+
