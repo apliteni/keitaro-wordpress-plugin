@@ -2,7 +2,7 @@
 Contributors: Keitaro Team
 Tags: metrics, analytics, keitaro
 Requires at least: 3.3
-Tested up to: 4.9.4
+Tested up to: 5.0.1
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Requires PHP: 5.3
@@ -16,7 +16,7 @@ Features:
   - Sending postbacks
 
 == Terms of Service ==
-<a href="https://keitarotds.com/tos">https://keitarotds.com/tos</a>
+<a href="https://keitaro.io/en/tos">https://keitaro.io/en/tos</a>
 
 == Installation ==
 
@@ -28,13 +28,13 @@ Features:
 6. Import copied settings. Press "Save Changes".
 
 == Need help? ==
-Send us a message on support@keitarotds.com or read <a href="https://help.keitarotds.com/wp-plugin">the knowledge base</a>.
+Send us a message on support@keitaro.io or read <a href="https://help.keitaro.io/en/wp-plugin">the knowledge base</a>.
 
 == Frequently Asked Questions ==
 
 = What is Keitaro? =
 Keitaro is a self-hosted tracker for affiliate marketers.
-More information about Keitaro on page <a href="https://keitarotds.com?utm_source=wordpress-plugins">https://keitarotds.com</a>.
+More information about Keitaro on page <a href="https://keitaro.io?utm_source=wordpress-plugins">https://keitaro.io</a>.
 
 = Which Keitaro version is needed? =
 Keitaro v9.1 or higher.
