@@ -90,8 +90,11 @@ Add parameter 'page' to the campaign parameters.
 
 == Changelog ==
 
-= 0.7.2 =
+= 0.7.3 =
 Updated kclick_client.php to v3.5
+
+= 0.7.2 =
+Updated kclick_client.php to v3.4
 WordPress 5 Compatibility
 
 = 0.7.1 =
