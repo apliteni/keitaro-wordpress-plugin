@@ -14,7 +14,7 @@ class KClickClient
 {
     const SESSION_SUB_ID = 'sub_id';
     const SESSION_LANDING_TOKEN = 'landing_token';
-    /** @version 3.3 **/
+    /** @version 3.5 **/
     const VERSION = 3;
     const STATE_SESSION_KEY = 'keitaro_state';
     const STATE_SESSION_EXPIRES_KEY = 'keitaro_state_expires';
@@ -52,6 +52,8 @@ class KClickClient
             ->language((isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2) : ''))
             ->seReferrer($referrer)
             ->referrer($referrer)
+            ->param('original_headers', getallheaders())
+            ->param('original_host', isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost')
             ->param('kversion', '3.4');
 
         if ($this->isPrefetchDetected()) {
@@ -234,8 +236,13 @@ class KClickClient
 
     public function isPrefetchDetected()
     {
-        return (isset($_SERVER['HTTP_X_PURPOSE']) && $_SERVER['HTTP_X_PURPOSE'] === 'preview') ||
-            (isset($_SERVER['HTTP_X_MOZ']) && $_SERVER['HTTP_X_MOZ'] === 'prefetch');
+        $checkServerParams = ['HTTP_X_PURPOSE' => 'preview', 'HTTP_X_MOZ' => 'prefetch', 'HTTP_X_FB_HTTP_ENGINE' => 'Liger'];
+        foreach ($checkServerParams as $name => $value) {
+            if (isset($_SERVER[$name]) && $_SERVER[$name] == $value) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public function saveCookie($key, $value, $ttl)
@@ -537,7 +544,12 @@ class KClickClient
     private function _buildRequestUrl()
     {
         $request = parse_url($this->_trackerUrl);
-        return "{$request['scheme']}://{$request['host']}/{$request['path']}";
+        $url = "{$request['scheme']}://{$request['host']}";
+        if (isset($request['port'])) {
+            $url = ':' . $request['port'];
+        }
+        $url .= "/{$request['path']}";
+        return $url;
     }
 
 
@@ -700,5 +712,21 @@ if (!function_exists('http_response_code')) {
 
         return $code;
 
+    }
+}
+
+if (!function_exists('getallheaders'))
+{
+    function getallheaders()
+    {
+        $headers = [];
+        foreach ($_SERVER as $name => $value)
+        {
+            if (substr($name, 0, 5) == 'HTTP_')
+            {
+                $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+            }
+        }
+        return $headers;
     }
 }
