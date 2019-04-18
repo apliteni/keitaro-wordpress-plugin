@@ -90,6 +90,9 @@ Add parameter 'page' to the campaign parameters.
 
 == Changelog ==
 
+= 0.7.4 =
+Fix errors in kclick_client.php
+
 = 0.7.3 =
 Updated kclick_client.php to v3.5
 
