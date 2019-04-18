@@ -236,7 +236,7 @@ class KClickClient
 
     public function isPrefetchDetected()
     {
-        $checkServerParams = ['HTTP_X_PURPOSE' => 'preview', 'HTTP_X_MOZ' => 'prefetch', 'HTTP_X_FB_HTTP_ENGINE' => 'Liger'];
+        $checkServerParams = array('HTTP_X_PURPOSE' => 'preview', 'HTTP_X_MOZ' => 'prefetch', 'HTTP_X_FB_HTTP_ENGINE' => 'Liger');
         foreach ($checkServerParams as $name => $value) {
             if (isset($_SERVER[$name]) && $_SERVER[$name] == $value) {
                 return true;
@@ -719,7 +719,7 @@ if (!function_exists('getallheaders'))
 {
     function getallheaders()
     {
-        $headers = [];
+        $headers = array();
         foreach ($_SERVER as $name => $value)
         {
             if (substr($name, 0, 5) == 'HTTP_')
