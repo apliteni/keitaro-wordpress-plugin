@@ -14,11 +14,12 @@ class KClickClient
 {
     const SESSION_SUB_ID = 'sub_id';
     const SESSION_LANDING_TOKEN = 'landing_token';
-    /** @version 3.5 **/
+    /** @version 3.7 **/
     const VERSION = 3;
     const STATE_SESSION_KEY = 'keitaro_state';
     const STATE_SESSION_EXPIRES_KEY = 'keitaro_state_expires';
     const DEFAULT_TTL = 1;
+    const NOT_FOUND_STATUS = 404;
     /**
      * @var KHttpClient
      */
@@ -314,56 +315,47 @@ class KClickClient
         return $this->_result;
     }
 
+    /**
+     * @param bool $break
+     * @param bool $print
+     * @throws KTrafficClientError
+     */
     public function execute($break = false, $print = true)
     {
-        $content = $this->getContent();
+        $result = $this->performRequest();
+        $body = $this->_buildBody($result);
 
-        if ($print) {
-            $headers = $this->sendHeaders();
-            echo $content;
-        } else {
-            return $content;
+        if (!$print) {
+            return $body;
         }
 
-        if ($break && (!empty($content) || $this->checkHeaders($headers))) {
-            exit;
-        }
+        $this->_sendHeaders($result);
+        echo $body;
     }
 
-    public function checkHeaders($headers)
+    public function executeAndBreak()
     {
-        if (empty($headers)) {
-            return;
+        $result = $this->performRequest();
+        $body = $this->_buildBody($result);
+        $this->_sendHeaders($result);
+
+        if (!empty($body)) {
+            die($body);
         }
-        foreach ($headers as $header) {
-            if (strpos($header, 'Location:') === 0) {
-                return true;
-            }
-            if ($header == 'HTTP/1.1 404 Not Found') {
-                return true;
-            }
+
+        if (!empty($result->headers) && ResponseExecutor::containsActionHeader($result->headers)) {
+            die($body);
         }
-        return false;
+
+        if (!empty($result->status) && $result->status == self::NOT_FOUND_STATUS) {
+            die($body);
+        }
     }
 
     public function getContent()
     {
         $result = $this->performRequest();
-        $content = '';
-        if (!empty($result)) {
-            if (!empty($result->error)) {
-                $content .=  $result->error;
-            }
-            if (!empty($result->body)) {
-                if (isset($result->contentType) && (strstr($result->contentType, 'image') || strstr($result->contentType, 'application/pdf'))) {
-                    $content = base64_decode($result->body);
-                } else {
-                    $content .= $result->body;
-                }
-            }
-        }
-
-        return $content;
+        return $this->_buildBody($result);
     }
 
     public function showLog($separator = '<br />')
@@ -384,14 +376,24 @@ class KClickClient
         return $this->_log;
     }
 
-    public function executeAndBreak()
-    {
-        $this->execute(true);
-    }
-
     public function getParams()
     {
         return $this->_params;
+    }
+
+    private function _sendHeaders($result)
+    {
+        $file = '';
+        $line = '';
+        if (headers_sent($file, $line)) {
+            $msg = "Body output already started";
+            if (!empty($file)) {
+                $msg .= "({$file}:{$line})";
+            }
+            $this->log($msg);
+            return;
+        }
+        ResponseExecutor::sendHeaders($result);
     }
 
     private function _storeState($result, $ttl)
@@ -411,55 +413,30 @@ class KClickClient
         }
     }
 
+    private function _buildBody($result)
+    {
+        $content = '';
+        if (!empty($result)) {
+            if (!empty($result->error)) {
+                $content .=  $result->error;
+            }
+            if (!empty($result->body)) {
+                if (isset($result->contentType) && (strstr($result->contentType, 'image') || strstr($result->contentType, 'application/pdf'))) {
+                    $content = base64_decode($result->body);
+                } else {
+                    $content .= $result->body;
+                }
+            }
+        }
+
+        return $content;
+    }
+
     private function _saveKeitaroCookies($cookies, $ttl)
     {
         foreach ($cookies as $key => $value) {
             $this->saveCookie($key, $value, $ttl);
         }
-    }
-
-    public function sendHeaders()
-    {
-        $result = $this->performRequest();
-        $headers = array();
-        $file = "";
-        $line = "";
-        if (headers_sent($file, $line)) {
-            $msg = "Body output already started";
-            if (!empty($file)) {
-                $msg .= "({$file}:{$line})";
-            }
-            $this->log($msg);
-        }
-
-
-        if (!empty($result->headers)) {
-            foreach ($result->headers as $header) {
-                $headers[] = $header;
-                if (!headers_sent()) {
-                    header($header);
-                }
-            }
-        }
-
-        if (!empty($result->status)) {
-            http_response_code($result->status);
-        }
-
-        if (!empty($result->contentType)) {
-            $header = 'Content-Type: ' . $result->contentType;
-            $headers[] = $header;
-            if (!headers_sent()) {
-                header($header);
-            }
-        }
-        return $headers;
-    }
-
-    // @deprecated
-    public function updateHeaders()
-    {
-        $this->sendHeaders();
     }
 
     public function getOffer($params = array(), $fallback = 'no_offer')
@@ -546,7 +523,7 @@ class KClickClient
         $request = parse_url($this->_trackerUrl);
         $url = "{$request['scheme']}://{$request['host']}";
         if (isset($request['port'])) {
-            $url = ':' . $request['port'];
+            $url .= ':' . $request['port'];
         }
         $url .= "/{$request['path']}";
         return $url;
@@ -587,7 +564,7 @@ class KClickClient
         }
 
         if (empty($ip)) {
-            $ip = $_SERVER['REMOTE_ADDR'];
+            $ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '127.0.0.1';
         }
 
         return $ip;
@@ -619,12 +596,58 @@ class KClickClient
     }
 }
 
+class ResponseExecutor
+{
+    public static function sendHeaders($result)
+    {
+        if (!empty($result->headers)) {
+            foreach ($result->headers as $header) {
+                if (!headers_sent()) {
+                    header($header);
+                }
+            }
+        }
+
+        if (!empty($result->status)) {
+            http_response_code($result->status);
+        }
+
+        if (!empty($result->contentType)) {
+            $header = 'Content-Type: ' . $result->contentType;
+            $headers[] = $header;
+            if (!headers_sent()) {
+                header($header);
+            }
+        }
+    }
+
+    public static function containsActionHeader($headers)
+    {
+        if (empty($headers)) {
+            return false;
+        }
+        foreach ($headers as $header) {
+            if (strpos($header, 'Location:') === 0) {
+                return true;
+            }
+            if (strstr($header, '404 Not Found')) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+}
+
 class KHttpClient
 {
     const UA = 'KHttpClient';
 
     public function request($url, $params, $opts = array())
     {
+        if (!function_exists('curl_init')) {
+            die('[KCLickClient Error] Extension \'php_curl\' must be installed');
+        }
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_URL, $url);
