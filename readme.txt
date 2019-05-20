@@ -90,6 +90,9 @@ Add parameter 'page' to the campaign parameters.
 
 == Changelog ==
 
+= 0.7.6 =
+Fix errors with regexp for offer macro
+
 = 0.7.5 =
 Updated kclick_client.php to v3.7
 
