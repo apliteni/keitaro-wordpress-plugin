@@ -124,9 +124,9 @@ class KEITARO_Public {
     public function final_output($content)
     {
         $patterns = array(
-            '/(http[s]?:\/\/){offer:?([0-9])?\}/si',
-            '/(http[s]?:\/\/)offer:?([0-9])?/si',
-            '/\{offer:?([0-9])?\}/si'
+            '/http[s]?:\/\/{offer:?([0-9]*)?}/si',
+            '/http[s]?:\/\/offer:?([0-9]*)?/si',
+            '/{offer:?([0-9]*)?}/si'
         );
         foreach ($patterns as $pattern) {
             $content = $this->replace_with_pattern($pattern, $content);
@@ -138,8 +138,8 @@ class KEITARO_Public {
     {
         if (preg_match_all($pattern, $content, $result)) {
             foreach ($result[0] as $num => $macro) {
-                if ($result[2][$num]) {
-                    $offer_id = $result[2][$num];
+                if (isset($result[1][$num]) && intval($result[1][$num]) > 0) {
+                    $offer_id = intval($result[1][$num]);
                 } else {
                     $offer_id = null;
                 }
