@@ -90,6 +90,9 @@ Add parameter 'page' to the campaign parameters.
 
 == Changelog ==
 
+= 0.7.8 =
+Updated CLick Client to v3.8
+
 = 0.7.6 =
 Fix errors with regexp for offer macro
 
