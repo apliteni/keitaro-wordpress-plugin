@@ -17,7 +17,7 @@ svn_checkout:
   script:
     - svn co --username=${WP_USERNAME} "${WP_REPO}" svn
     - cd svn/
-    - svn revert
+    - svn revert .
     - svn status
 
   artifacts:
