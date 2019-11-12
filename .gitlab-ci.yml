@@ -4,19 +4,34 @@ before_script:
 
 stages:
   - preparation
+  - sync
   - tagging
   - deployment
 
-prepare_trunk:
-  tags: [docker]
+svn_checkout:
   stage: preparation
+  tags: [docker]
+  image: jgsqware/svn-client
+  script:
+    - co --username=${WP_USERNAME} "${WP_REPO}" svn
+  artifacts:
+    paths:
+      - svn
+  only:
+    - /master/
+
+sync_changes:
+  tags: [docker]
+  stage: syncc
   image: luky/rsync
   script:
     - ci/bin/sync_with_trunk.sh
-    - ci/bin/set_version.sh
+    - ci/bin/change_version.sh
+  dependencies:
+    - svn_checkout
   artifacts:
     paths:
-      - svn/trunk
+      - svn
 
 pack_bundle:
   stage: deployment
@@ -26,6 +41,8 @@ pack_bundle:
   artifacts:
     paths:
       - keitaro.zip
+  dependencies:
+    - sync_changes
   only:
     - /master/
 
@@ -34,7 +51,7 @@ tag_commit:
   tags: [shell]
   script: ci/bin/tag.sh
   dependencies:
-    - prepare_trunk
+    - sync_changes
   only:
     - /master/
 
@@ -44,9 +61,12 @@ svn_commit:
   image:
     name: jgsqware/svn-client
     entrypoint: ["/bin/sh", "-c"]
-  script: ci/bin/svn_commit.sh
+  script:
+    - export commit_msg="Release ${APP_VERSION}"
+    - add ./assets/* ./trunk/*
+    - ci -m ${commit_msg} --username "${WP_USERNAME}" --password "${WP_PASSWORD}" --no-auth-cache
   dependencies:
-    - prepare_trunk
+    - sync_changes
   only:
     - /master/
   #when: manual

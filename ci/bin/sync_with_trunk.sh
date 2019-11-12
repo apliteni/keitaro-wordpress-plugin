@@ -1,6 +1,7 @@
 set -e -x -o pipefail
 
 rsync -av \
+    --delete \
 		--exclude=.idea \
 		--exclude=.git \
 		--exclude=README.md \
