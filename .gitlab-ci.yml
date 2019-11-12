@@ -16,6 +16,8 @@ svn_checkout:
     entrypoint: ["/bin/sh", "-c"]
   script:
     - svn co --username=${WP_USERNAME} "${WP_REPO}" svn
+    - cd svn/ && svn status
+
   artifacts:
     paths:
       - svn
