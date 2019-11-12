@@ -11,7 +11,7 @@ svn co --username=${WP_USERNAME} "${WP_REPO}"
 mv keitaro-tracker-integration/.svn ./svn/.svn
 rm -rf ./assets ./trunc
 cp -r svn/assets keitaro-tracker-integration/
-cp -r svn/trunc keitaro-tracker-integration/
+cp -r svn/trunk keitaro-tracker-integration/
 cd keitaro-tracker-integration
-svn add ./assets/* ./trunc/*
+svn add ./assets/* ./trunk/*
 svn ci -m ${commit_msg} --username "${WP_USERNAME}" --password "${WP_PASSWORD}" --no-auth-cache
