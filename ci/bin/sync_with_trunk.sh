@@ -1,7 +1,6 @@
 set -e -x -o pipefail
 
 rsync -av \
-    --delete \
 		--exclude=.idea \
 		--exclude=.git \
 		--exclude=README.md \
@@ -14,5 +13,5 @@ rsync -av \
 		--exclude=ci \
 		./ ./svn/trunk
 
-rsync -av --delete ./assets ./svn/
+rsync -av ./assets ./svn/
 
