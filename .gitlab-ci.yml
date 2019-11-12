@@ -9,8 +9,7 @@ stages:
 prepare_trunk:
   tags: [docker]
   stage: preparation
-  image:
-    dockerfile: Dockerfile
+  image: luky/rsync
   script:
     - ci/bin/sync_with_trunk.sh
     - ci/bin/set_version.sh
