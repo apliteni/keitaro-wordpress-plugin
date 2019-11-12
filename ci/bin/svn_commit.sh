@@ -9,6 +9,9 @@ commit_msg="Release ${APP_VERSION}"
 
 svn co --username=${WP_USERNAME} "${WP_REPO}"
 mv keitaro-tracker-integration/.svn ./svn/.svn
-cd ./svn/
+rm -rf ./assets ./trunc
+cp svn/assets keitaro-tracker-integration/
+cp svn/trunc keitaro-tracker-integration/
+cd keitaro-tracker-integration
 svn add ./assets/* ./trunc/*
 svn ci -m ${commit_msg} --username "${WP_USERNAME}" --password "${WP_PASSWORD}" --no-auth-cache
