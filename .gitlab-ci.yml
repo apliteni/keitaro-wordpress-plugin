@@ -7,7 +7,7 @@ stages:
   - deployment
 
 prepare_trunk:
-  tags: [shell]
+  tags: [docker]
   stage: preparation
   image: luky/rsync
   script:
