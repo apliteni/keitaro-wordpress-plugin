@@ -10,7 +10,6 @@ prepare_trunk:
   tags: [docker]
   stage: preparation
   image:
-    context: ci/rsync
     dockerfile: Dockerfile
   script:
     - ci/bin/sync_with_trunk.sh
