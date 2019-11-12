@@ -69,6 +69,7 @@ svn_commit:
   script:
     - cd svn
     - export commit_msg="Release ${APP_VERSION}"
+    - svn status
     - svn add --force ./assets/* ./trunk/*
     - svn ci -m ${commit_msg} --username "${WP_USERNAME}" --password "${WP_PASSWORD}" --no-auth-cache
   dependencies:
