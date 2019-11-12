@@ -23,6 +23,8 @@ pack_bundle:
   artifacts:
     paths:
       - keitaro.zip
+  only:
+    - /master/
 
 tag_commit:
   stage: tagging
@@ -30,6 +32,8 @@ tag_commit:
   script: ci/bin/tag.sh
   dependencies:
     - prepare_trunk
+  only:
+    - /master/
 
 svn_commit:
   stage: deployment
@@ -38,3 +42,6 @@ svn_commit:
   script: ci/bin/svn_commit.sh
   dependencies:
     - prepare_trunk
+  only:
+    - /master/
+  when: manual

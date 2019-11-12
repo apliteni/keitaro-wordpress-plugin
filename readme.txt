@@ -90,8 +90,11 @@ Add parameter 'page' to the campaign parameters.
 
 == Changelog ==
 
+= 0.7.9 =
+Fix description text in the settings
+
 = 0.7.8 =
-Updated CLick Client to v3.8
+Updated Click Client to v3.8
 
 = 0.7.6 =
 Fix errors with regexp for offer macro
