@@ -1,0 +1,40 @@
+before_script:
+  - ci/bin/version.sh
+
+stages:
+  - preparation
+  - tagging
+  - deployment
+
+prepare_trunk:
+  tags: [shell]
+  script:
+    - ci/bin/sync_with_trunk.sh
+    - ci/bin/set_version.sh
+  artifacts:
+    paths:
+      - svn/trunk
+
+pack_bundle:
+  stage: deployment
+  tags: [shell]
+  script:
+    - ci/bin/pack.sh
+  artifacts:
+    paths:
+      - keitaro.zip
+
+tag_commit:
+  stage: tagging
+  tags: [shell]
+  script: ci/bin/tag.sh
+  dependencies:
+    - prepare_trunk
+
+svn_commit:
+  stage: deployment
+  tags: [docker]
+  image: jgsqware/svn-client
+  script: ci/bin/svn_commit.sh
+  dependencies:
+    - prepare_trunk
