@@ -1,5 +1,11 @@
 set -e -x -o pipefail
 
+
+if [[ ! -v APP_VERSION ]]; then
+    echo "APP_VERSION is not set" && exit 1
+fi
+
+
 svn co --username=${WP_USERNAME} "${WP_REPO}"
 mv keitaro-tracker-integration/.svn ./svn/.svn
 cd ./svn/
