@@ -14,5 +14,5 @@ rsync -av \
 		--exclude=ci \
 		./ ./svn/trunk
 
-rsync -av ./assets ./svn/
+rsync -av --delete ./assets ./svn/
 

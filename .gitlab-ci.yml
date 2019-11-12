@@ -22,7 +22,7 @@ svn_checkout:
 
 sync_changes:
   tags: [docker]
-  stage: syncc
+  stage: sync
   image: luky/rsync
   script:
     - ci/bin/sync_with_trunk.sh
