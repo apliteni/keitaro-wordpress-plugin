@@ -1,4 +1,5 @@
 before_script:
+  - ci/bin/init_svn.sh
   - ci/bin/version.sh
 
 stages:
