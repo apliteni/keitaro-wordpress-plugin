@@ -48,3 +48,4 @@ svn_commit:
   only:
     - /master/
   when: manual
+  allow_failure: false
