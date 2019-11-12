@@ -19,6 +19,7 @@ svn_checkout:
   artifacts:
     paths:
       - svn
+    expire_in: 1 day
   only:
     - /master/
 
@@ -34,6 +35,7 @@ sync_changes:
   artifacts:
     paths:
       - svn
+    expire_in: 1 day
 
 pack_bundle:
   stage: deployment
@@ -43,6 +45,7 @@ pack_bundle:
   artifacts:
     paths:
       - keitaro.zip
+    expire_in: 6 day
   dependencies:
     - sync_changes
   only:
