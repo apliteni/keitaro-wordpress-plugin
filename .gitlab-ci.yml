@@ -9,6 +9,7 @@ stages:
 prepare_trunk:
   tags: [shell]
   stage: preparation
+  image: luky/rsync
   script:
     - ci/bin/sync_with_trunk.sh
     - ci/bin/set_version.sh

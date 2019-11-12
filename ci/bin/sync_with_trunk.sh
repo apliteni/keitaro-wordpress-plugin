@@ -9,6 +9,7 @@ rsync -av \
 		--exclude=Makefile \
 		--exclude=keitaro.zip \
 		--exclude=.gitignore \
+		--exclude=.gitlab-ci.yml \
 		--exclude=ci \
 		./ ./svn/trunk && \
 
