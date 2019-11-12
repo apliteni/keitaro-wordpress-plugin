@@ -11,9 +11,11 @@ stages:
 svn_checkout:
   stage: preparation
   tags: [docker]
-  image: jgsqware/svn-client
+  image:
+    name: jgsqware/svn-client
+    entrypoint: ["/bin/sh", "-c"]
   script:
-    - co --username=${WP_USERNAME} "${WP_REPO}" svn
+    - svn co --username=${WP_USERNAME} "${WP_REPO}" svn
   artifacts:
     paths:
       - svn
@@ -63,8 +65,8 @@ svn_commit:
     entrypoint: ["/bin/sh", "-c"]
   script:
     - export commit_msg="Release ${APP_VERSION}"
-    - add ./assets/* ./trunk/*
-    - ci -m ${commit_msg} --username "${WP_USERNAME}" --password "${WP_PASSWORD}" --no-auth-cache
+    - svn add ./assets/* ./trunk/*
+    - svn ci -m ${commit_msg} --username "${WP_USERNAME}" --password "${WP_PASSWORD}" --no-auth-cache
   dependencies:
     - sync_changes
   only:
