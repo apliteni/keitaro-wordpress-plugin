@@ -3,6 +3,7 @@ set -e -x -o pipefail
 rsync -av \
 		--exclude=.idea \
 		--exclude=.git \
+		--exclude=README.md \
 		--exclude=svn \
 		--exclude=assets \
 		--exclude=Makefile \
@@ -10,8 +11,7 @@ rsync -av \
 		--exclude=.gitignore \
 		--exclude=.gitlab-ci.yml \
 		--exclude=ci \
-		./ ./svn/trunk && \
+		./ ./svn/trunk
 
-rsync -av \
- 		./assets ./svn/
+rsync -av ./assets ./svn/
 
