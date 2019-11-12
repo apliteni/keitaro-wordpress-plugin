@@ -41,8 +41,9 @@ tag_commit:
 svn_commit:
   stage: deployment
   tags: [docker]
-  image: jgsqware/svn-client
-  entrypoint: ["/bin/sh", "-c"]
+  image:
+    name: jgsqware/svn-client
+    entrypoint: ["/bin/sh", "-c"]
   script: ci/bin/svn_commit.sh
   dependencies:
     - prepare_trunk
