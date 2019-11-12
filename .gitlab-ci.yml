@@ -42,10 +42,11 @@ svn_commit:
   stage: deployment
   tags: [docker]
   image: jgsqware/svn-client
+  entrypoint: ["/bin/sh", "-c"]
   script: ci/bin/svn_commit.sh
   dependencies:
     - prepare_trunk
   only:
     - /master/
-  when: manual
+  #when: manual
   allow_failure: false
