@@ -1,5 +1,4 @@
 before_script:
-  - ci/bin/init_svn.sh
   - ci/bin/version.sh
 
 stages:
@@ -17,7 +16,7 @@ svn_checkout:
   script:
     - svn co --username=${WP_USERNAME} "${WP_REPO}" svn
     - cd svn/
-    - svn revert .
+    #- svn revert .
     - svn status
 
   artifacts:
