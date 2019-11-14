@@ -10,6 +10,7 @@ rsync -av \
 		--exclude=keitaro.zip \
 		--exclude=.gitignore \
 		--exclude=.gitlab-ci.yml \
+		--exclude=keitaro-tracker-integration
 		--exclude=ci \
 		./ ./svn/trunk
 
