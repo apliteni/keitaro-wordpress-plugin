@@ -70,11 +70,11 @@ svn_commit:
     name: jgsqware/svn-client
     entrypoint: ["/bin/sh", "-c"]
   script:
+    - export APP_VERSION=$(cat VERSION)
     - cd svn
-    - export commit_msg="Release ${APP_VERSION}"
     - svn status
     - svn add --force --parents ./assets/* ./trunk/*
-    - svn ci -m ${commit_msg} --username "${WP_USERNAME}" --password "${WP_PASSWORD}" --no-auth-cache
+    - svn ci -m "Release ${APP_VERSION}" --username "${WP_USERNAME}" --password "${WP_PASSWORD}" --no-auth-cache
   dependencies:
     - sync_changes
   only:
