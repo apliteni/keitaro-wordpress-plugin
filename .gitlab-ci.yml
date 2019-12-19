@@ -11,9 +11,7 @@ stages:
 sync_precheck:
   tags: [docker]
   stage: precheck
-  image:
-    name: jgsqware/svn-client
-    entrypoint: ["/bin/sh", "-c"]
+  image: luky/rsync
   script:
     - "[[ ! -f readme.txt ]] && exit 1"
   artifacts:
