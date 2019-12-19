@@ -2,14 +2,13 @@ before_script:
   - ci/bin/version.sh
 
 stages:
-  - preparationd
-  - sync
+  - preparation
   - tagging
   - deployment
 
 svn_checkout:
   tags: [docker]
-  stage: preparationd
+  stage: preparation
   image:
     name: jgsqware/svn-client
     entrypoint: ["/bin/sh", "-c"]
