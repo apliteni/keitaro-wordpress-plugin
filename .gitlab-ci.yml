@@ -10,6 +10,7 @@ stages:
 
 sync_precheck:
   stage: precheck
+  tags: [shell]
   script:
     - "[[ ! -f readme.txt ]] && exit 1"
   artifacts:
