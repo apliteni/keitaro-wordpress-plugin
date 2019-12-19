@@ -1,6 +1,3 @@
-before_script:
-  - ci/bin/version.sh
-
 stages:
   - precheck
   - preparation
@@ -42,6 +39,7 @@ sync_changes:
   stage: sync
   image: luky/rsync
   script:
+    - ci/bin/version.sh
     - ci/bin/sync_with_trunk.sh
     - ci/bin/change_version.sh
   dependencies:
@@ -50,6 +48,8 @@ sync_changes:
     paths:
       - svn
     expire_in: 1 day
+  only:
+    - /master/
 
 pack_bundle:
   stage: deployment
@@ -68,7 +68,9 @@ pack_bundle:
 tag_commit:
   stage: tagging
   tags: [shell]
-  script: ci/bin/tag.sh
+  script:
+    - ci/bin/version.sh
+    - ci/bin/tag.sh
   dependencies:
     - sync_changes
   only:
