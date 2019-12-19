@@ -18,7 +18,7 @@ svn_checkout:
     - cd svn/
     #- svn revert .
     - svn status
-
+    - ci/bin/version.sh
   artifacts:
     paths:
       - svn
