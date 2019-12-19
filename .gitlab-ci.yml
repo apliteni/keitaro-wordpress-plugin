@@ -9,7 +9,6 @@ stages:
   - deployment
 
 sync_precheck:
-  tags: [docker]
   stage: precheck
   script:
     - "[[ ! -f readme.txt ]] && exit 1"
