@@ -2,9 +2,24 @@ before_script:
   - ci/bin/version.sh
 
 stages:
+  - precheck
   - preparation
+  - sync
   - tagging
   - deployment
+
+sync_precheck:
+  tags: [docker]
+  stage: precheck
+  image:
+    name: jgsqware/svn-client
+    entrypoint: ["/bin/sh", "-c"]
+  script:
+    - "[[ ! -f readme.txt ]] && exit 1"
+  artifacts:
+    paths:
+      - svn
+    expire_in: 1 day
 
 svn_checkout:
   tags: [docker]
