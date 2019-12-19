@@ -12,6 +12,7 @@ sync_precheck:
   stage: precheck
   tags: [shell]
   script:
+    - chmod +x ci/bin/exist.sh
     - ci/bin/exist.sh
   artifacts:
     paths:
