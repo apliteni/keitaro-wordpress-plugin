@@ -12,7 +12,7 @@ sync_precheck:
   stage: precheck
   tags: [shell]
   script:
-    - "[[ ! -f readme.txt ]] && exit 1"
+    - ci/bin/exist.sh
   artifacts:
     paths:
       - svn
