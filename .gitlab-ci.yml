@@ -1,15 +1,24 @@
-before_script:
-  - ci/bin/version.sh
-
 stages:
+  - precheck
   - preparation
   - sync
   - tagging
   - deployment
 
+sync_precheck:
+  stage: precheck
+  tags: [shell]
+  script:
+    - chmod +x ci/bin/exist.sh
+    - ci/bin/exist.sh
+  artifacts:
+    paths:
+      - svn
+    expire_in: 1 day
+
 svn_checkout:
-  stage: preparation
   tags: [docker]
+  stage: preparation
   image:
     name: jgsqware/svn-client
     entrypoint: ["/bin/sh", "-c"]
@@ -18,7 +27,6 @@ svn_checkout:
     - cd svn/
     #- svn revert .
     - svn status
-
   artifacts:
     paths:
       - svn
@@ -31,6 +39,7 @@ sync_changes:
   stage: sync
   image: luky/rsync
   script:
+    - ci/bin/version.sh
     - ci/bin/sync_with_trunk.sh
     - ci/bin/change_version.sh
   dependencies:
@@ -39,6 +48,8 @@ sync_changes:
     paths:
       - svn
     expire_in: 1 day
+  only:
+    - /master/
 
 pack_bundle:
   stage: deployment
@@ -57,7 +68,9 @@ pack_bundle:
 tag_commit:
   stage: tagging
   tags: [shell]
-  script: ci/bin/tag.sh
+  script:
+    - ci/bin/version.sh
+    - ci/bin/tag.sh
   dependencies:
     - sync_changes
   only:
