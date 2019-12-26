@@ -313,7 +313,7 @@ class Keitaro_Admin {
             array('name' => __('Primary Campaign', $this->plugin_name), 'value' => 'primary_campaign'),
             array('name' => __('Another', $this->plugin_name), 'value' => 'another'),
         );
-        
+
         $this->select(array(
             'name' => $name,
             'options' => $options,
@@ -328,11 +328,11 @@ class Keitaro_Admin {
 
     function text_input($args) {
         $name = esc_attr($args['name']);
-        $class = esc_attr($args['class']);
+        $class = isset($args['class']) ? $args['class'] : "";
         $value = esc_attr($args['value']);
         $size = esc_attr($args['size']);
-        $placeholder = esc_attr($args['placeholder']);
-        $description = esc_attr($args['description']);
+        $placeholder = isset($args['placeholder']) ? $args['placeholder'] : "";
+        $description = isset($args['description']) ? $args['description'] : "";
 
         echo "<input class='$class' type='text' name='$name' size='$size' value='$value' placeholder='$placeholder' />";
         if (!empty($description)) {
@@ -346,7 +346,7 @@ class Keitaro_Admin {
         $name = esc_attr($args['name']);
         $value = esc_attr($args['value']);
         $options = $args['options'];
-        $description = esc_attr($args['description']);
+        $description = isset($args['description']) ? $args['description'] : "";
 
         foreach ($options as $i => $option) {
             if ($option['value'] == $value) {
@@ -370,7 +370,7 @@ class Keitaro_Admin {
         $name = esc_attr($args['name']);
         $selected = esc_attr($args['selected']);
         $options = $args['options'];
-        $description = esc_attr($args['description']);
+        $description = isset($args['description']) ? $args['description'] : "";
         echo "<select name=\"{$name}\">";
         foreach ($options as $i => $option) {
             if ($option['value'] === $selected) {
