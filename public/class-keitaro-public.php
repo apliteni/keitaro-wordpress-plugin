@@ -4,12 +4,12 @@ class KEITARO_Public {
     private $version;
     private $client;
     public function __construct( $plugin_name, $version ) {
-        require_once plugin_dir_path( __FILE__  ). '../includes/kclick_client.php';
+        require_once plugin_dir_path( __FILE__  ). '../includes/kclient.php';
 
         $this->plugin_name = $plugin_name;
         $this->version = $version;
 
-        $this->client = new KClickClient(
+        $this->client = new KClient(
             $this->get_option('tracker_url') . '/api.php?',
             $this->get_option('token')
         );
@@ -86,7 +86,7 @@ class KEITARO_Public {
         $this->client->param('page', $_SERVER['REQUEST_URI']);
 
         if ($this->get_option('debug') === 'yes' && isset($_GET['_reset'])) {
-            unset($_SESSION[KClickClient::STATE_SESSION_KEY]);
+            unset($_SESSION[KClient::STATE_SESSION_KEY]);
         }
 
         if (!$this->get_option('tracker_url')) {
