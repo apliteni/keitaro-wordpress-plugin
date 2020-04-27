@@ -1,8 +1,8 @@
 <?php
 /**
  * Usage:
- *  require_once 'kclick_client.php';
- *  $client = new KClickClient('http://tds.com/api.php', 'CAMPAIGN_TOKEN');
+ *  require_once 'kclient.php';
+ *  $client = new KClient('http://tds.com/api.php', 'CAMPAIGN_TOKEN');
  *  $client->sendUtmLabels(); # send only utm labels
  *  $client->sendAllParams(); # send all params
  *  $client
@@ -10,11 +10,11 @@
  *      ->execute();          # use executeAndBreak() to break the page execution if there is redirect or some output
  *
  */
-class KClickClient
+class KClient
 {
     const SESSION_SUB_ID = 'sub_id';
     const SESSION_LANDING_TOKEN = 'landing_token';
-    /** @version 3.8 **/
+    /** @version 3.10 **/
     const VERSION = 3;
     const STATE_SESSION_KEY = 'keitaro_state';
     const STATE_SESSION_EXPIRES_KEY = 'keitaro_state_expires';
@@ -296,14 +296,15 @@ class KClickClient
         try {
             $result = $this->_httpClient->request($request, $params, $options);
             $this->log('Response: ' . $result);
-        } catch (KTrafficClientError $e) {
+        } catch (KClientError $e) {
             if ($this->_debug) {
                 throw $e;
             } else {
                 $errorCode = $e->getHumanCode();
                 $errorCode = $errorCode ? $errorCode . ' ' : '';
 
-                return (object) ['error' => $errorCode . self::ERROR];
+                echo $errorCode . self::ERROR;
+                return;
             }
         }
         $this->_result = json_decode($result);
@@ -322,7 +323,7 @@ class KClickClient
      * @param bool $break
      * @param bool $print
      * @return bool|string
-     * @throws KTrafficClientError
+     * @throws KClientError
      */
     public function execute($break = false, $print = true)
     {
@@ -617,7 +618,7 @@ class ResponseExecutor
         }
 
         if (!empty($result->contentType)) {
-            $header = 'Content-Type: ' . $result->contentType;
+            $header = 'Content-type: ' . $result->contentType;
             $headers[] = $header;
             if (!headers_sent()) {
                 header($header);
@@ -664,19 +665,22 @@ class KHttpClient
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params));
         curl_setopt($ch, CURLOPT_FAILONERROR, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+
         $result = curl_exec($ch);
         if (curl_error($ch)) {
-            throw new KTrafficClientError(curl_error($ch), curl_errno($ch));
+            throw new KClientError(curl_error($ch), curl_errno($ch));
         }
 
         if (empty($result)) {
-            throw new KTrafficClientError('Empty response');
+            throw new KClientError('Empty response');
         }
         return $result;
     }
 }
 
-class KTrafficClientError extends Exception
+class KClientError extends Exception
 {
     const ERROR_UNKNOWN = 'UNKNOWN';
 
@@ -767,7 +771,7 @@ if (!function_exists('http_response_code')) {
                 case 305: $text = 'Use Proxy'; break;
                 case 400: $text = 'Bad Request'; break;
                 case 401: $text = 'Unauthorized'; break;
-                case 402: $text = 'Payment Required'; break;
+                case 402: $text = 'The license must be in Pro edition or higher'; break;
                 case 403: $text = 'Forbidden'; break;
                 case 404: $text = 'Not Found'; break;
                 case 405: $text = 'Method Not Allowed'; break;
@@ -824,3 +828,5 @@ if (!function_exists('getallheaders'))
         return $headers;
     }
 }
+
+class_alias('KClient', 'KClickClient');
