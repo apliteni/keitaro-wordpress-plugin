@@ -90,6 +90,9 @@ Add parameter 'page' to the campaign parameters.
 
 == Changelog ==
 
+= 0.8.1 =
+Updated KClient.php to v3.11
+
 = 0.8.0 =
 Updated KClient.php to v3.10
 

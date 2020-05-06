@@ -14,7 +14,7 @@ class KClient
 {
     const SESSION_SUB_ID = 'sub_id';
     const SESSION_LANDING_TOKEN = 'landing_token';
-    /** @version 3.10 **/
+    /** @version 3.11 **/
     const VERSION = 3;
     const STATE_SESSION_KEY = 'keitaro_state';
     const STATE_SESSION_EXPIRES_KEY = 'keitaro_state_expires';
@@ -476,7 +476,7 @@ class KClient
     // @deprecated
     public function forceChooseOffer()
     {
-        throw new \Error('forceChooseOffer was removed in KClickClient v3.');
+        throw new \Error('forceChooseOffer was removed in KClient v3.');
     }
 
     public function getBody()
@@ -530,7 +530,8 @@ class KClient
         if (isset($request['port'])) {
             $url .= ':' . $request['port'];
         }
-        $url .= "/{$request['path']}";
+        $path = ltrim($request['path'], "\\\/");
+        $url .= "/{$path}";
         return $url;
     }
 
@@ -651,7 +652,7 @@ class KHttpClient
     public function request($url, $params, $opts = array())
     {
         if (!function_exists('curl_init')) {
-            die('[KCLickClient Error] Extension \'php_curl\' must be installed');
+            die('[KClient] Extension \'php_curl\' must be installed');
         }
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
