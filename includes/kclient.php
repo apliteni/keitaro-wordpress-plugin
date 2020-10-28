@@ -552,7 +552,8 @@ class KClient
             'FORWARDED',
             'CLIENT_IP',
             'FORWARDED_FOR_IP',
-            'HTTP_PROXY_CONNECTION');
+            'HTTP_PROXY_CONNECTION',
+            'HTTP_CF_CONNECTING_IP');
         foreach ($headers as $header) {
             if (!empty($_SERVER[$header])) {
                 $tmp = explode(',', $_SERVER[$header]);
