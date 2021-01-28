@@ -10,7 +10,7 @@ class KEITARO_Public {
         $this->version = $version;
 
         $this->client = new KClient(
-            $this->get_option('tracker_url') . '/api.php?',
+            $this->get_option('tracker_url'),
             $this->get_option('token')
         );
     }

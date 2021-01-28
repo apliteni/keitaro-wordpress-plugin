@@ -2,7 +2,7 @@
 /**
  * Usage:
  *  require_once 'kclient.php';
- *  $client = new KClient('http://tds.com/api.php', 'CAMPAIGN_TOKEN');
+ *  $client = new KClient('http://tds.com/', 'CAMPAIGN_TOKEN');
  *  $client->sendUtmLabels(); # send only utm labels
  *  $client->sendAllParams(); # send all params
  *  $client
@@ -14,7 +14,7 @@ class KClient
 {
     const SESSION_SUB_ID = 'sub_id';
     const SESSION_LANDING_TOKEN = 'landing_token';
-    /** @version 3.11 **/
+    /** @version 3.12 **/
     const VERSION = 3;
     const STATE_SESSION_KEY = 'keitaro_state';
     const STATE_SESSION_EXPIRES_KEY = 'keitaro_state_expires';
@@ -53,8 +53,10 @@ class KClient
             ->language((isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2) : ''))
             ->seReferrer($referrer)
             ->referrer($referrer)
-            ->param('original_headers', getallheaders())
+            ->param('original_headers', $this->_getAllHeaders())
             ->param('original_host', isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost')
+            ->param('uri', ((!empty($_SERVER['HTTPS'])) ? 'https' : 'http') .
+                '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'])
             ->param('kversion', '3.4');
 
         if ($this->isPrefetchDetected()) {
@@ -92,9 +94,16 @@ class KClient
         return $this;
     }
 
-    public function trackerUrl($name)
+    public function trackerUrl($trackerUrl)
     {
-        $this->_trackerUrl = $name;
+        if (!empty($trackerUrl)) {
+            $request = parse_url($trackerUrl);
+            $this->_trackerUrl = "{$request['scheme']}://{$request['host']}";
+
+            if (isset($request['port'])) {
+                $this->_trackerUrl .= ':' . $request['port'];
+            }
+        }
     }
 
     // @deprecated
@@ -500,16 +509,8 @@ class KClient
 
     private function _buildOfferUrl($params = array())
     {
-        $request = parse_url($this->_trackerUrl);
-        $lastChar = substr($request['path'], -1);
-        if ($lastChar != '/' && $lastChar != '\\') {
-            $path = str_replace(basename($request['path']), '', $request['path']);
-        } else {
-            $path = $request['path'];
-        }
-        $path = ltrim($path, "\\\/");
         $params = http_build_query($params);
-        return "{$request['scheme']}://{$request['host']}/{$path}?{$params}";
+        return "{$this->_trackerUrl}/?{$params}";
     }
 
 
@@ -525,14 +526,7 @@ class KClient
 
     private function _buildRequestUrl()
     {
-        $request = parse_url($this->_trackerUrl);
-        $url = "{$request['scheme']}://{$request['host']}";
-        if (isset($request['port'])) {
-            $url .= ':' . $request['port'];
-        }
-        $path = ltrim($request['path'], "\\\/");
-        $url .= "/{$path}";
-        return $url;
+        return $this->_trackerUrl . "/click_api/v" . self::VERSION;
     }
 
 
@@ -552,8 +546,8 @@ class KClient
             'FORWARDED',
             'CLIENT_IP',
             'FORWARDED_FOR_IP',
-            'HTTP_PROXY_CONNECTION',
-            'HTTP_CF_CONNECTING_IP');
+            'HTTP_CF_CONNECTING_IP',
+            'HTTP_PROXY_CONNECTION');
         foreach ($headers as $header) {
             if (!empty($_SERVER[$header])) {
                 $tmp = explode(',', $_SERVER[$header]);
@@ -601,6 +595,17 @@ class KClient
 
         return $opts;
     }
+
+    private function _getAllHeaders()
+    {
+        $headers = array();
+        foreach ($_SERVER as $name => $value) {
+            if (substr($name, 0, 5) == 'HTTP_') {
+                $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+            }
+        }
+        return $headers;
+    }
 }
 
 class ResponseExecutor
@@ -616,7 +621,7 @@ class ResponseExecutor
         }
 
         if (!empty($result->status)) {
-            http_response_code($result->status);
+            static::_sendResponseCode($result->status);
         }
 
         if (!empty($result->contentType)) {
@@ -644,6 +649,131 @@ class ResponseExecutor
         return false;
     }
 
+    private static function _sendResponseCode($code = null)
+    {
+        if ($code !== null) {
+
+            switch ($code) {
+                case 100:
+                    $text = 'Continue';
+                    break;
+                case 101:
+                    $text = 'Switching Protocols';
+                    break;
+                case 200:
+                    $text = 'OK';
+                    break;
+                case 201:
+                    $text = 'Created';
+                    break;
+                case 202:
+                    $text = 'Accepted';
+                    break;
+                case 203:
+                    $text = 'Non-Authoritative Information';
+                    break;
+                case 204:
+                    $text = 'No Content';
+                    break;
+                case 205:
+                    $text = 'Reset Content';
+                    break;
+                case 206:
+                    $text = 'Partial Content';
+                    break;
+                case 300:
+                    $text = 'Multiple Choices';
+                    break;
+                case 301:
+                    $text = 'Moved Permanently';
+                    break;
+                case 302:
+                    $text = 'Moved Temporarily';
+                    break;
+                case 303:
+                    $text = 'See Other';
+                    break;
+                case 304:
+                    $text = 'Not Modified';
+                    break;
+                case 305:
+                    $text = 'Use Proxy';
+                    break;
+                case 400:
+                    $text = 'Bad Request';
+                    break;
+                case 401:
+                    $text = 'Unauthorized';
+                    break;
+                case 402:
+                    $text = 'The license must be in Pro edition or higher';
+                    break;
+                case 403:
+                    $text = 'Forbidden';
+                    break;
+                case 404:
+                    $text = 'Not Found';
+                    break;
+                case 405:
+                    $text = 'Method Not Allowed';
+                    break;
+                case 406:
+                    $text = 'Not Acceptable';
+                    break;
+                case 407:
+                    $text = 'Proxy Authentication Required';
+                    break;
+                case 408:
+                    $text = 'Request Time-out';
+                    break;
+                case 409:
+                    $text = 'Conflict';
+                    break;
+                case 410:
+                    $text = 'Gone';
+                    break;
+                case 411:
+                    $text = 'Length Required';
+                    break;
+                case 412:
+                    $text = 'Precondition Failed';
+                    break;
+                case 413:
+                    $text = 'Request Entity Too Large';
+                    break;
+                case 414:
+                    $text = 'Request-URI Too Large';
+                    break;
+                case 415:
+                    $text = 'Unsupported Media Type';
+                    break;
+                case 500:
+                    $text = 'Internal Server Error';
+                    break;
+                case 501:
+                    $text = 'Not Implemented';
+                    break;
+                case 502:
+                    $text = 'Bad Gateway';
+                    break;
+                case 503:
+                    $text = 'Service Unavailable';
+                    break;
+                case 504:
+                    $text = 'Gateway Time-out';
+                    break;
+                case 505:
+                    $text = 'HTTP Version not supported';
+                    break;
+                default:
+                    $text = '';
+            }
+
+            $protocol = (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0');
+
+            header($protocol . ' ' . $code . ' ' . $text);
+        }
+    }
 }
 
 class KHttpClient
@@ -652,8 +782,8 @@ class KHttpClient
 
     public function request($url, $params, $opts = array())
     {
-        if (!function_exists('curl_init')) {
-            die('[KClient] Extension \'php_curl\' must be installed');
+        if (!in_array('curl', get_loaded_extensions())) {
+            return json_encode(array('error' => 'Curl extension must be instsalled'));
         }
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -747,87 +877,6 @@ class KClientError extends Exception
             default:
                 return "[REQ_ERR: " . self::ERROR_UNKNOWN . "]";
         }
-    }
-}
-
-if (!function_exists('http_response_code')) {
-    function http_response_code($code = null)
-    {
-        if ($code !== null) {
-
-            switch ($code) {
-                case 100: $text = 'Continue'; break;
-                case 101: $text = 'Switching Protocols'; break;
-                case 200: $text = 'OK'; break;
-                case 201: $text = 'Created'; break;
-                case 202: $text = 'Accepted'; break;
-                case 203: $text = 'Non-Authoritative Information'; break;
-                case 204: $text = 'No Content'; break;
-                case 205: $text = 'Reset Content'; break;
-                case 206: $text = 'Partial Content'; break;
-                case 300: $text = 'Multiple Choices'; break;
-                case 301: $text = 'Moved Permanently'; break;
-                case 302: $text = 'Moved Temporarily'; break;
-                case 303: $text = 'See Other'; break;
-                case 304: $text = 'Not Modified'; break;
-                case 305: $text = 'Use Proxy'; break;
-                case 400: $text = 'Bad Request'; break;
-                case 401: $text = 'Unauthorized'; break;
-                case 402: $text = 'The license must be in Pro edition or higher'; break;
-                case 403: $text = 'Forbidden'; break;
-                case 404: $text = 'Not Found'; break;
-                case 405: $text = 'Method Not Allowed'; break;
-                case 406: $text = 'Not Acceptable'; break;
-                case 407: $text = 'Proxy Authentication Required'; break;
-                case 408: $text = 'Request Time-out'; break;
-                case 409: $text = 'Conflict'; break;
-                case 410: $text = 'Gone'; break;
-                case 411: $text = 'Length Required'; break;
-                case 412: $text = 'Precondition Failed'; break;
-                case 413: $text = 'Request Entity Too Large'; break;
-                case 414: $text = 'Request-URI Too Large'; break;
-                case 415: $text = 'Unsupported Media Type'; break;
-                case 500: $text = 'Internal Server Error'; break;
-                case 501: $text = 'Not Implemented'; break;
-                case 502: $text = 'Bad Gateway'; break;
-                case 503: $text = 'Service Unavailable'; break;
-                case 504: $text = 'Gateway Time-out'; break;
-                case 505: $text = 'HTTP Version not supported'; break;
-                default:
-                    exit('Unknown http status code "' . htmlentities($code) . '"');
-                    break;
-            }
-
-            $protocol = (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0');
-
-            header($protocol . ' ' . $code . ' ' . $text);
-
-            $GLOBALS['http_response_code'] = $code;
-
-        } else {
-
-            $code = (isset($GLOBALS['http_response_code']) ? $GLOBALS['http_response_code'] : 200);
-
-        }
-
-        return $code;
-
-    }
-}
-
-if (!function_exists('getallheaders'))
-{
-    function getallheaders()
-    {
-        $headers = array();
-        foreach ($_SERVER as $name => $value)
-        {
-            if (substr($name, 0, 5) == 'HTTP_')
-            {
-                $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
-            }
-        }
-        return $headers;
     }
 }
 
