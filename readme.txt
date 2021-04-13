@@ -90,6 +90,16 @@ Add parameter 'page' to the campaign parameters.
 
 == Changelog ==
 
+= 0.8.4 =
+Updated KClient.php to v3.13
+Added option to disable session cookies
+
+= 0.8.3 =
+Updated KClient.php to v3.12
+
+= 0.8.2 =
+Updated ip headers for KClient.php
+
 = 0.8.1 =
 Updated KClient.php to v3.11
 

@@ -14,7 +14,7 @@ class KClient
 {
     const SESSION_SUB_ID = 'sub_id';
     const SESSION_LANDING_TOKEN = 'landing_token';
-    /** @version 3.12 **/
+    /** @version 3.13 **/
     const VERSION = 3;
     const STATE_SESSION_KEY = 'keitaro_state';
     const STATE_SESSION_EXPIRES_KEY = 'keitaro_state_expires';
@@ -31,6 +31,7 @@ class KClient
     private $_excludeParams = array('api_key', 'token', 'language', 'ua', 'ip', 'referrer', 'force_redirect_offer');
     private $_result;
     private $_stateRestored;
+    private $_sessionsDisabled = false;
 
     const ERROR = '[KTrafficClient] Something is wrong. Enable debug mode to see the reason.';
 
@@ -200,7 +201,7 @@ class KClient
 
     public function restoreFromSession()
     {
-        if ($this->isStateRestored()) {
+        if ($this->isStateRestored() || $this->_sessionsDisabled) {
             return;
         }
         $this->_startSession();
@@ -218,6 +219,11 @@ class KClient
                 $this->log('State restored');
             }
         }
+    }
+
+    public function disableSessions()
+    {
+        $this->_sessionsDisabled = true;
     }
 
     public function restoreFromQuery()
@@ -412,6 +418,9 @@ class KClient
 
     private function _storeState($result, $ttl)
     {
+        if ($this->_sessionsDisabled) {
+            return;
+        }
         $this->_startSession();
         $_SESSION[self::STATE_SESSION_KEY] = json_encode($result);
         $_SESSION[self::STATE_SESSION_EXPIRES_KEY] = time() + ($ttl * 60 * 60);

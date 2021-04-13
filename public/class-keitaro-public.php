@@ -114,6 +114,10 @@ class KEITARO_Public {
             return;
         }
 
+        if ($this->get_option('disable_sessions') === 'yes') {
+            $this->client->disableSessions();
+        }
+
         if ($this->get_option('track_hits') !== 'yes' && !$this->client->isStateRestored()) {
             $this->client->restoreFromSession();
         }
