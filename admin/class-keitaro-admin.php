@@ -201,6 +201,20 @@ class Keitaro_Admin {
 
             )
         );
+
+        add_settings_field(
+            'disable_sessions',
+            __('Disable session cookies', $this->plugin_name),
+            array($this, 'radio_buttons'),
+            $group,
+            $section, array(
+                'name' => 'keitaro_settings[disable_sessions]',
+                'value' => isset($settings['disable_sessions']) ? $settings['disable_sessions'] : 'no',
+                'options' => $yesNoOptions,
+                'description' => __('Without this cookie restoreFromSession wouldn\'t work', $this->plugin_name),
+
+            )
+        );
     }
 
     private function init_page_settings($group) {
